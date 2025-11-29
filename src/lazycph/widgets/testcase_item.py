@@ -7,7 +7,7 @@ from textual.app import RenderResult
 from textual.reactive import reactive, var
 from textual.widgets import ListItem
 
-from lazycph.utils import runtimes
+from lazycph import runtimes
 
 
 class Status(Enum):

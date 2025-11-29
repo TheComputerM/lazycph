@@ -2,12 +2,12 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from lazycph.utils.runtimes import utils
+from lazycph.runtimes import utils
 
 
-def c(file: Path, stdin: str) -> str:
+def cpp(file: Path, stdin: str) -> str:
     """
-    Compile a C source file using gcc and execute it with the given stdin.
+    Compile a C++ source file using g++ and execute it with the given stdin.
     """
     # Create a temporary file for the executable
     with tempfile.NamedTemporaryFile(suffix="", delete=False) as temp_exe:
@@ -15,7 +15,7 @@ def c(file: Path, stdin: str) -> str:
 
     try:
         compile_result = subprocess.run(
-            ["gcc", str(file), "-o", exe_path, "-std=gnu23"],
+            ["g++", str(file), "-o", exe_path, "-std=c++17"],
             text=True,
             capture_output=True,
             timeout=utils.COMPILATION_TIMEOUT,

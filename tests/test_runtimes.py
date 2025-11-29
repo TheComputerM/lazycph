@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-from lazycph.utils.runtimes import execute, utils
+from lazycph.runtimes import execute, utils
 
 
 class TestPython:

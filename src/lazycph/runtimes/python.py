@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from lazycph.utils.runtimes import utils
+from lazycph.runtimes import utils
 
 
 def python(file: Path, stdin: str) -> str:

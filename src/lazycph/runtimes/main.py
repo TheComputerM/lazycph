@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from lazycph.utils.runtimes.utils import RuntimeExtension
+from lazycph.runtimes.utils import RuntimeExtension
 
 
 def execute(file: Path, stdin: str) -> str:
