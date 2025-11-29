@@ -7,6 +7,7 @@ from textual.containers import Grid
 from textual.widgets import ListView, TextArea
 
 from lazycph.widgets import TestcaseItem
+from lazycph.widgets.testcase_list import TestcaseList
 
 
 class Workspace(Grid):
@@ -14,10 +15,6 @@ class Workspace(Grid):
     Workspace {
         grid-size: 3 2;
         grid-columns: 28 1fr 1fr;
-    }
-
-    #testcase-list {
-        row-span: 2;
     }
 
     Workspace > TextArea {
@@ -49,7 +46,7 @@ class Workspace(Grid):
         self.file = file
 
     def compose(self) -> ComposeResult:
-        with ListView(initial_index=0, id="testcase-list"):
+        with TestcaseList():
             yield TestcaseItem()
         yield TextArea(
             id="input",
@@ -71,7 +68,7 @@ class Workspace(Grid):
 
     @property
     def testcase_list(self) -> ListView:
-        return self.query_one("#testcase-list", ListView)
+        return self.query_one(TestcaseList)
 
     @property
     def selected_testcase(self) -> TestcaseItem:
