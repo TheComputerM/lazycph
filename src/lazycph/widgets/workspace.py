@@ -48,8 +48,6 @@ class Workspace(Grid):
     def compose(self) -> ComposeResult:
         with ListView(initial_index=0, id="testcase-list"):
             yield TestcaseItem()
-            yield TestcaseItem()
-            yield TestcaseItem()
         yield TextArea(
             id="input",
             placeholder="STDIN",
