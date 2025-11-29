@@ -35,8 +35,10 @@ class Workspace(Grid):
 
     BINDINGS = [
         Binding("ctrl+r", "run", "Run"),
+        Binding("ctrl+shift+r", "run_all", "Run all"),
         Binding("d", "delete", "Delete"),
         Binding("c", "create", "Create"),
+        Binding("escape", "app.focus('testcase-list')", show=False),
     ]
 
     file: Path
@@ -101,6 +103,11 @@ class Workspace(Grid):
 
     async def action_run(self) -> None:
         self.selected_testcase.run(self.file)
+
+    async def action_run_all(self) -> None:
+        for item in self.testcase_list.children:
+            assert isinstance(item, TestcaseItem)
+            item.run(self.file)
 
     def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
         if action == "delete" and len(self.testcase_list.children) == 1:
