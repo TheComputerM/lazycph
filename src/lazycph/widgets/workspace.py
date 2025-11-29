@@ -34,10 +34,11 @@ class Workspace(Grid):
     """
 
     BINDINGS = [
-        Binding("ctrl+r", "run", "Run"),
-        Binding("ctrl+shift+r", "run_all", "Run all"),
-        Binding("d", "delete", "Delete"),
-        Binding("c", "create", "Create"),
+        Binding("ctrl+r", "run", "run"),
+        Binding("ctrl+shift+r", "run_all", "run all"),
+        Binding("d", "delete", "delete"),
+        Binding("c", "create", "create"),
+        Binding("q", "app.quit", show=False),
         Binding("escape", "app.focus('testcase-list')", show=False),
     ]
 

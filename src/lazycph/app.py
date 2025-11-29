@@ -31,7 +31,7 @@ class LazyCPH(App):
     }
     """
     BINDINGS = [
-        ("f", "choose_file", "Choose file"),
+        ("f", "choose_file", "select file"),
     ]
 
     base: Path
