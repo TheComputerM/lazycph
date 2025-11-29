@@ -64,7 +64,7 @@ class TestcaseItem(ListItem):
             self.output = "Time Limit Exceeded"
             self.status = Status.TIME_LIMIT_EXCEEDED
         except CalledProcessError as e:
-            self.output = f"Code {e.returncode}\nError: {e.output}"
+            self.output = f"{e}\n{e.stderr}"
             self.status = Status.RUNTIME_ERROR
         except Exception as e:
             self.output = f"Unexpected Error: {e}"
