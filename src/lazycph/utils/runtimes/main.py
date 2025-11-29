@@ -13,5 +13,9 @@ def execute(file: Path, stdin: str) -> str:
             from .cpp import cpp
 
             return cpp(file, stdin)
+        case RuntimeExtension.C.value:
+            from .c import c
+
+            return c(file, stdin)
         case _:
             return "Unsupported file type"

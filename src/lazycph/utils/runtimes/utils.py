@@ -7,6 +7,7 @@ COMPILATION_TIMEOUT = 10.0
 class RuntimeExtension(Enum):
     PYTHON = ".py"
     CPP = ".cpp"
+    C = ".c"
 
 
 class CompilationError(Exception):

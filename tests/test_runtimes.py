@@ -55,3 +55,29 @@ int main() { printf("hello world"); return 0; }
             file.flush()
             with pytest.raises(subprocess.CalledProcessError):
                 execute(Path(file.name), "")
+
+
+class TestC:
+    def test_basic(self):
+        with NamedTemporaryFile(suffix=".c", mode="w") as file:
+            file.write("""
+#include <stdio.h>
+int main() { printf("hello world"); return 0; }
+""")
+            file.flush()
+            output = execute(Path(file.name), "")
+            assert output == "hello world"
+
+    def test_compilation_error(self):
+        with NamedTemporaryFile(suffix=".c", mode="w+") as file:
+            file.write("MAKIMA IS LISTENING")
+            file.flush()
+            with pytest.raises(utils.CompilationError):
+                execute(Path(file.name), "")
+
+    def test_runtime_error(self):
+        with NamedTemporaryFile(suffix=".c", mode="w+") as file:
+            file.write("""int main() {return -1;} """)
+            file.flush()
+            with pytest.raises(subprocess.CalledProcessError):
+                execute(Path(file.name), "")

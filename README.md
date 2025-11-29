@@ -7,8 +7,9 @@ A beautiful Terminal User Interface (TUI) for competitive programming that helps
 ## ✨ Features
 
 - 🎨 **Beautiful TUI** - Modern terminal interface built with [Textual](https://github.com/Textualize/textual)
-- 🧪 **Multiple Test Cases** - Create, manage, and run multiple test cases for your solution
-- ⚡  **Fast** - Edit run your testcases quickly
+- 🧪 **Easy CRUD** - Create, manage, and run multiple test cases for your solution
+- ⚡  **Fast** - Edit and Run your testcases quickly
+- 🌐 **Multiple Languages** - C,C++,Python are supported out of the box
 
 ## 🚀 Installation
 
