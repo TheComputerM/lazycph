@@ -7,7 +7,7 @@ from textual.app import RenderResult
 from textual.reactive import reactive, var
 from textual.widgets import ListItem
 
-from lazycph import runtimes
+from lazycph.runtimes import executor, utils
 
 
 class Status(Enum):
@@ -56,8 +56,8 @@ class TestcaseItem(ListItem):
     def run(self, file: Path):
         self.output = "Running..."
         try:
-            self.output = runtimes.execute(file, self.input)
-        except runtimes.CompilationError as e:
+            self.output = executor.execute(file, self.input)
+        except utils.CompilationError as e:
             self.output = str(e)
             self.status = Status.COMPILATION_ERROR
         except TimeoutExpired:

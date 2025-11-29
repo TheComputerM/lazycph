@@ -6,7 +6,7 @@ from textual.binding import Binding
 from textual.containers import Grid
 from textual.widgets import ListView, TextArea
 
-from lazycph.widgets import TestcaseItem
+from lazycph.widgets.testcase_item import TestcaseItem
 from lazycph.widgets.testcase_list import TestcaseList
 
 

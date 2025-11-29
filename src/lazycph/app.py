@@ -14,7 +14,7 @@ from textual.widgets import (
 )
 
 from lazycph.screens import FilePicker
-from lazycph.widgets import Workspace
+from lazycph.widgets.workspace import Workspace
 
 
 class LazyCPH(App):
