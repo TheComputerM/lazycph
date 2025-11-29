@@ -12,8 +12,8 @@ class TestcaseList(ListView):
     """
 
     BINDINGS = [
-        Binding("d", "delete", "delete"),
         Binding("c", "create", "create"),
+        Binding("d", "delete", "delete"),
         Binding("right", "app.focus('input')", "Focus input", show=False),
     ]
 

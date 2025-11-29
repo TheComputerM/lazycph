@@ -33,7 +33,21 @@ class Workspace(Grid):
     BINDINGS = [
         Binding("ctrl+r", "run", "run"),
         Binding("ctrl+shift+r", "run_all", "run all"),
-        Binding("escape", "app.focus('testcase-list')", "Focus list", show=False),
+        Binding(
+            "escape", "app.focus('testcase-list')", "focus testcase list", show=False
+        ),
+        Binding(
+            "ctrl+left_square_bracket",
+            "prev_testcase",
+            "select previous testcase",
+            show=False,
+        ),
+        Binding(
+            "ctrl+right_square_bracket",
+            "next_testcase",
+            "select next testcase",
+            show=False,
+        ),
     ]
 
     file: Path
@@ -83,13 +97,19 @@ class Workspace(Grid):
     def handle_expected_output_changed(self, event: TextArea.Changed) -> None:
         self.selected_testcase.expected_output = event.control.text
 
-    async def action_run(self) -> None:
+    def action_run(self) -> None:
         self.selected_testcase.run(self.file)
 
-    async def action_run_all(self) -> None:
+    def action_run_all(self) -> None:
         for item in self.testcase_list.children:
             assert isinstance(item, TestcaseItem)
             item.run(self.file)
+
+    def action_prev_testcase(self) -> None:
+        self.testcase_list.action_cursor_up()
+
+    def action_next_testcase(self) -> None:
+        self.testcase_list.action_cursor_down()
 
     def on_mount(self) -> None:
         def update_output(output: str):
