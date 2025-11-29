@@ -52,26 +52,38 @@ Launch with a specific file:
 lazycph solution.py
 ```
 
-### Keyboard Shortcuts
+## Integration with Zed
 
-| Key | Action |
-|-----|--------|
-| `f` | Open file picker |
-| `Ctrl+R` | Run current test case |
-| `c` | Create new test case |
-| `d` | Delete current test case |
-| `↑/↓` | Navigate between test cases |
-| `Tab` | Switch between input/output fields |
-| `Ctrl+Q` | Quit application |
+You can easily integrate LazyCPH with the [Zed](https://zed.dev) editor for a seamless competitive programming experience. You just need to configure a task and bind it to a shortcut key.
 
-## 🎮 How It Works
+```jsonc
+// tasks.json
+[
+  {
+    "label": "lazycph",
+    "command": "{path_to_lazycph_executable}",
+    "args": ["$ZED_FILE"],
+    "use_new_terminal": true,
+  }
+]
+```
 
-1. **Choose Your File**: Press `f` or click "Choose File" to select your solution file
-2. **Create Test Cases**: Press `c` to create new test cases
-3. **Add Input**: Type your test input in the STDIN field
-4. **Add Expected Output**: Type the expected output in the Expected STDOUT field
-5. **Run & Compare**: Press `Ctrl+R` to run your solution and see the output
-6. **Navigate**: Use arrow keys to switch between test cases
+```jsonc
+// keymap.json
+{
+  "context": "Workspace",
+  "bindings": {
+    "alt-g": [
+      "task::Spawn",
+      { "task_name": "lazycph", "reveal_target": "center" }
+    ]
+  }
+}
+```
+
+So now whenever you press your keybind (alt+g in this case), a new terminal window opens with LazyCPH running on the current file. [See how it looks](./assets/zed.mp4).
+
+<video src="https://github.com/user-attachments/assets/a18089c0-594b-4bf6-8053-92a924c2af91"></video>
 
 ## 🛠️ Development
 
