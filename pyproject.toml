@@ -1,17 +1,26 @@
 [project]
 name = "lazycph"
 version = "0.0.1"
-description = "Add your description here"
+description = "Competitive Programming Helper"
 readme = "README.md"
 requires-python = ">=3.13"
+keywords = ["textual", "tui", "competitive-programming"]
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Education",
+    "Natural Language :: English",
+    "Topic :: Terminals"
+]
 dependencies = [
     "textual>=6.6.0",
 ]
-keywords = ["textual", "tui", "competitive-programming"]
 
 [project.urls]
-HomePage = "https://github.com/TheComputerM/lazycph"
+Homepage = "https://github.com/TheComputerM/lazycph"
 Repository = "https://github.com/TheComputerM/lazycph.git"
+Issues = "https://github.com/TheComputerM/lazycph/issues"
 
 [project.scripts]
 lazycph = "lazycph.__main__:main"
