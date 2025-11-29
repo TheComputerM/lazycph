@@ -2,7 +2,7 @@ from textual.binding import Binding
 from textual.reactive import reactive
 from textual.widgets import ListView
 
-from lazycph.widgets import TestcaseItem
+from lazycph.widgets.testcase_item import TestcaseItem
 
 
 class TestcaseList(ListView):

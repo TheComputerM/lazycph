@@ -1,4 +1,8 @@
+import os
+import threading
+from functools import wraps
 from pathlib import Path
+from typing import Optional
 
 from textual import on
 from textual.app import ComposeResult
@@ -8,6 +12,39 @@ from textual.widgets import ListView, TextArea
 
 from lazycph.widgets.testcase_item import TestcaseItem
 from lazycph.widgets.testcase_list import TestcaseList
+
+
+def debounce(wait_time=0.3):
+    """
+    Decorator that will postpone a function's execution until after wait_time seconds
+    have elapsed since the last time it was invoked.
+    """
+
+    def decorator(function):
+        timer: Optional[threading.Timer] = None
+
+        @wraps(function)
+        def wrapper(*args, **kwargs):
+            nonlocal timer
+
+            # If a timer is already running (meaning a call happened recently),
+            # we cancel it. This effectively "resets" the clock.
+            if timer is not None:
+                timer.cancel()
+
+            def call_function():
+                nonlocal timer
+                timer = None
+                function(*args, **kwargs)
+
+            # Start a new timer for the specified wait_time
+            # The function will execute only if this timer completes without being cancelled
+            timer = threading.Timer(wait_time, call_function)
+            timer.start()
+
+        return wrapper
+
+    return decorator
 
 
 class Workspace(Grid):
@@ -52,13 +89,28 @@ class Workspace(Grid):
 
     file: Path
 
+    _initial_testcases = [TestcaseItem()]
+
     def __init__(self, file: Path) -> None:
         super().__init__()
         self.file = file
+        if os.path.exists(self.save_file):
+            with open(self.save_file, "r") as f:
+                import json
+
+                data = json.load(f)
+                assert isinstance(data, list)
+                self._initial_testcases = [
+                    TestcaseItem.from_json(item) for item in data
+                ]
+        elif not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
+            with open(self.save_dir / ".gitignore", "w") as f:
+                f.write("*")
+                f.flush()
 
     def compose(self) -> ComposeResult:
-        with TestcaseList():
-            yield TestcaseItem()
+        yield TestcaseList(*self._initial_testcases)
         yield TextArea(
             id="input",
             placeholder="STDIN",
@@ -78,6 +130,14 @@ class Workspace(Grid):
         )
 
     @property
+    def save_dir(self) -> Path:
+        return Path(self.file.parent) / ".lazycph"
+
+    @property
+    def save_file(self) -> Path:
+        return self.save_dir / f"{self.file.name}.json"
+
+    @property
     def testcase_list(self) -> ListView:
         return self.query_one(TestcaseList)
 
@@ -90,13 +150,16 @@ class Workspace(Grid):
     @on(TextArea.Changed, "#input")
     def handle_input_changed(self, event: TextArea.Changed) -> None:
         self.selected_testcase.input = event.control.text
+        self.action_save_state()
 
     @on(TextArea.Changed, "#expected-output")
     def handle_expected_output_changed(self, event: TextArea.Changed) -> None:
         self.selected_testcase.expected_output = event.control.text
+        self.action_save_state()
 
     def action_run(self) -> None:
         self.selected_testcase.run(self.file)
+        self.action_save_state()
 
     def action_run_all(self) -> None:
         for item in self.testcase_list.children:
@@ -108,6 +171,21 @@ class Workspace(Grid):
 
     def action_next_testcase(self) -> None:
         self.testcase_list.action_cursor_down()
+
+    @debounce()
+    def action_save_state(self) -> None:
+        """
+        Save the current state of the workspace (testcases) to a JSON file.
+        """
+        data = [
+            item.to_json()
+            for item in self.testcase_list.children
+            if isinstance(item, TestcaseItem)
+        ]
+        with open(self.save_file, "w") as f:
+            import json
+
+            json.dump(data, f)
 
     def on_mount(self) -> None:
         def update_output(output: str):
@@ -126,3 +204,4 @@ class Workspace(Grid):
 
         self.watch(self.testcase_list, "index", update_selected)
         self.query_one("#stdout", TextArea).can_focus = False
+        self.testcase_list.focus()

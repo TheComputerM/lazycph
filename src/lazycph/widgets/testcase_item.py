@@ -54,6 +54,9 @@ class TestcaseItem(ListItem):
 
     @work(thread=True)
     def run(self, file: Path):
+        """
+        Runs the given testcase using the specified file and updates the output and status accordingly.
+        """
         self.output = "Running..."
         try:
             self.output = executor.execute(file, self.input)
@@ -73,3 +76,20 @@ class TestcaseItem(ListItem):
             self.status = (
                 Status.CORRECT if self._is_expected_output_correct() else Status.WRONG
             )
+
+    def to_json(self) -> dict:
+        return {
+            "input": self.input,
+            "expected_output": self.expected_output,
+            "output": self.output,
+            "status": self.status.value,
+        }
+
+    @staticmethod
+    def from_json(data: dict) -> "TestcaseItem":
+        testcase = TestcaseItem()
+        testcase.set_reactive(TestcaseItem.input, data["input"])
+        testcase.set_reactive(TestcaseItem.expected_output, data["expected_output"])
+        testcase.set_reactive(TestcaseItem.output, data["output"])
+        testcase.set_reactive(TestcaseItem.status, Status(data["status"]))
+        return testcase
