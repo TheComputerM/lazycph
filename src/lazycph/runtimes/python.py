@@ -6,9 +6,8 @@ from lazycph.runtimes import utils
 
 def python(file: Path, stdin: str) -> str:
     result = subprocess.run(
-        f"python {file.absolute()}",
+        ["python3", file.absolute()],
         check=True,
-        shell=True,
         capture_output=True,
         text=True,
         input=stdin,
