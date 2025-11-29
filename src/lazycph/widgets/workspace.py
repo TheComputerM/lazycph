@@ -33,10 +33,7 @@ class Workspace(Grid):
     BINDINGS = [
         Binding("ctrl+r", "run", "run"),
         Binding("ctrl+shift+r", "run_all", "run all"),
-        Binding("d", "delete", "delete"),
-        Binding("c", "create", "create"),
-        Binding("q", "app.quit", show=False),
-        Binding("escape", "app.focus('testcase-list')", show=False),
+        Binding("escape", "app.focus('testcase-list')", "Focus list", show=False),
     ]
 
     file: Path
@@ -86,19 +83,6 @@ class Workspace(Grid):
     def handle_expected_output_changed(self, event: TextArea.Changed) -> None:
         self.selected_testcase.expected_output = event.control.text
 
-    def action_create(self) -> None:
-        """Create a new testcase and add it to the list."""
-        self.testcase_list.append(TestcaseItem())
-
-    async def action_delete(self) -> None:
-        """Delete the selected testcase from the list."""
-        index = self.testcase_list.index
-        assert index is not None
-        await self.testcase_list.pop(index)
-        for item in self.testcase_list.children[index:]:
-            item.refresh()  # Update indices
-        self.refresh_bindings()
-
     async def action_run(self) -> None:
         self.selected_testcase.run(self.file)
 
@@ -106,12 +90,6 @@ class Workspace(Grid):
         for item in self.testcase_list.children:
             assert isinstance(item, TestcaseItem)
             item.run(self.file)
-
-    def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
-        if action == "delete" and len(self.testcase_list.children) == 1:
-            # Do not delete the last testcase
-            return None
-        return super().check_action(action, parameters)
 
     def on_mount(self) -> None:
         def update_output(output: str):
