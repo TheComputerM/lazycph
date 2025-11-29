@@ -1,4 +1,5 @@
 from textual.binding import Binding
+from textual.reactive import reactive
 from textual.widgets import ListView
 
 from lazycph.widgets import TestcaseItem
@@ -17,12 +18,16 @@ class TestcaseList(ListView):
         Binding("right", "app.focus('input')", "Focus input", show=False),
     ]
 
+    # replace with custom reactive to always update even if the same index is set
+    index: reactive[int] = reactive(0, always_update=True, init=False)
+
     def __init__(self, *children: TestcaseItem) -> None:
-        super().__init__(*children, initial_index=0, id="testcase-list")
+        super().__init__(*children, id="testcase-list")
 
     def action_create(self) -> None:
         """Create a new testcase and add it to the list."""
         self.append(TestcaseItem())
+        self.refresh_bindings()
 
     async def action_delete(self) -> None:
         """Delete the selected testcase from the list."""

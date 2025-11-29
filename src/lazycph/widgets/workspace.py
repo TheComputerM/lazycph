@@ -83,9 +83,7 @@ class Workspace(Grid):
 
     @property
     def selected_testcase(self) -> TestcaseItem:
-        selected_index = self.testcase_list.index
-        assert selected_index is not None
-        testcase = self.testcase_list.children[selected_index]
+        testcase = self.testcase_list.highlighted_child
         assert isinstance(testcase, TestcaseItem)
         return testcase
 
