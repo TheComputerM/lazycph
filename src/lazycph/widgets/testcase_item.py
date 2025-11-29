@@ -1,0 +1,73 @@
+from enum import Enum
+from pathlib import Path
+from subprocess import CalledProcessError, TimeoutExpired
+
+from textual import work
+from textual.app import RenderResult
+from textual.reactive import reactive, var
+from textual.widgets import ListItem
+
+from lazycph.utils import runtimes
+
+
+class Status(Enum):
+    PENDING = "PE"
+    CORRECT = "CA"
+    WRONG = "WA"
+    COMPILATION_ERROR = "CE"
+    RUNTIME_ERROR = "RE"
+    TIME_LIMIT_EXCEEDED = "TLE"
+    UNKNOWN_ERROR = "XX"
+
+
+class TestcaseItem(ListItem):
+    DEFAULT_CSS = """
+    TestcaseItem {
+        padding: 1;
+    }
+    """
+
+    input: var[str] = var("")
+    output: var[str] = var("")
+    expected_output: var[str] = var("")
+
+    status: reactive[Status] = reactive(Status.PENDING)
+
+    @property
+    def index(self) -> int:
+        """Dynamically compute the current index in parent's children."""
+        assert self.parent is not None
+        return self.parent.children.index(self)
+
+    def render(self) -> RenderResult:
+        output = f"Testcase {self.index}"
+        if self.status is not Status.PENDING:
+            color = "$text-success"
+            if self.status is not Status.CORRECT:
+                color = "$text-error"
+            output = f"{output} [{color}]({self.status.value})[/]"
+        return output
+
+    def _compare_output(self) -> bool:
+        # TODO: More robust comparison
+        return self.output == self.expected_output
+
+    @work(thread=True)
+    def run(self, file: Path):
+        self.output = "Running..."
+        try:
+            self.output = runtimes.execute(file, self.input)
+        except runtimes.CompilationError as e:
+            self.output = str(e)
+            self.status = Status.COMPILATION_ERROR
+        except TimeoutExpired:
+            self.output = "Time Limit Exceeded"
+            self.status = Status.TIME_LIMIT_EXCEEDED
+        except CalledProcessError as e:
+            self.output = f"Code {e.returncode}\nError: {e.output}"
+            self.status = Status.RUNTIME_ERROR
+        except Exception as e:
+            self.output = f"Unexpected Error: {e}"
+            self.status = Status.UNKNOWN_ERROR
+        else:
+            self.status = Status.CORRECT if self._compare_output() else Status.WRONG
