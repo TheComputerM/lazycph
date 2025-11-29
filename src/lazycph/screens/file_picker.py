@@ -6,7 +6,7 @@ from textual.reactive import var
 from textual.screen import Screen
 from textual.widgets import DirectoryTree, Footer, Header, Input
 
-from lazycph.utils.runtimes import utils
+from lazycph.runtimes import utils
 
 
 class SourceTree(DirectoryTree):
