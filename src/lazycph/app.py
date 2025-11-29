@@ -3,6 +3,7 @@ from typing import Optional
 
 from textual import on
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.containers import CenterMiddle
 from textual.reactive import reactive
 from textual.widgets import (
@@ -31,7 +32,7 @@ class LazyCPH(App):
     }
     """
     BINDINGS = [
-        ("f", "choose_file", "select file"),
+        Binding("ctrl+f", "choose_file", "select file"),
     ]
 
     base: Path
@@ -48,16 +49,18 @@ class LazyCPH(App):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield Button(
+        _btn = Button(
             label=str(self.file.absolute()) if self.file else "Choose File",
             compact=True,
             id="btn-choose-file",
         )
+        _btn.can_focus = False
+        yield _btn
         if self.file:
             yield Workspace(file=self.file)
         else:
             # When no file is chosen, show a message in the center
-            yield CenterMiddle(Label("Please choose a file to begin."))
+            yield CenterMiddle(Label("Select your file (^f) to begin."))
 
         yield Footer()
 
@@ -73,4 +76,5 @@ class LazyCPH(App):
 
     def on_mount(self) -> None:
         self.theme = "tokyo-night"
-        self.query_one("#btn-choose-file", Button).can_focus = False
+        if self.file is None:
+            self.action_choose_file()

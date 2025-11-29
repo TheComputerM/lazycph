@@ -16,7 +16,8 @@ class SourceTree(DirectoryTree):
 
     DEFAULT_CSS = """
     SourceTree {
-        padding: 1 2;
+        padding: 1 1;
+        margin: 0 1;
     }
     """
 
@@ -39,7 +40,7 @@ class SourceTree(DirectoryTree):
 
 class FilePicker(Screen[Path]):
     TITLE = "Select a file"
-    BINDINGS = [("escape", "app.pop_screen", "Pop screen")]
+    BINDINGS = [("escape", "app.pop_screen", "Close file picker")]
 
     base: Path
     search: var[str] = var("")

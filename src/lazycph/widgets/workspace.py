@@ -34,7 +34,7 @@ class Workspace(Grid):
         Binding("ctrl+r", "run", "run"),
         Binding("ctrl+shift+r", "run_all", "run all"),
         Binding(
-            "escape", "app.focus('testcase-list')", "focus testcase list", show=False
+            "escape", "app.focus('testcase-list')", "focus on testcases", show=False
         ),
         Binding(
             "ctrl+left_square_bracket",
