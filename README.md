@@ -8,31 +8,18 @@ A beautiful Terminal User Interface (TUI) for competitive programming that helps
 
 - 🎨 **Beautiful TUI** - Modern terminal interface built with [Textual](https://github.com/Textualize/textual)
 - 🧪 **Easy CRUD** - Create, manage, and run multiple test cases for your solution
-- ⚡  **Fast** - Edit and Run your testcases quickly
 - 🌐 **Multiple Languages** - C,C++,Python are supported out of the box
+- ⚡  **Fast** - Edit and Run your testcases quickly
 
 ## 🚀 Installation
 
-### From Releases
-
-```bash
-TODO
+```sh
+pipx install lazycph
+# or
+uv tool install lazycph
 ```
 
-### From Source
-
-1. Clone the repository:
-```bash
-git clone https://github.com/TheComputerM/lazycph.git
-cd lazycph
-```
-
-2. Install using uv:
-```bash
-uv sync --all-groups
-uv run task install
-# binary is at ./dist/lazycph
-```
+Or if you prefer a standalone single-file binary; you can clone and setup the project, see [CONTIBUTING](./CONTIBUTING.md), and then run `uv run task build` to generate the binary in the `dist/` folder.
 
 ## 📖 Usage
 
@@ -43,12 +30,12 @@ Launch LazyCPH in the current directory:
 lazycph
 ```
 
-Launch with a specific directory:
+Launch in a specific directory:
 ```bash
 lazycph /path/to/your/code
 ```
 
-Launch with a specific file:
+Open a specific file:
 ```bash
 lazycph solution.py
 ```
@@ -58,19 +45,19 @@ lazycph solution.py
 You can easily integrate LazyCPH with the [Zed](https://zed.dev) editor for a seamless competitive programming experience. You just need to configure a task and bind it to a shortcut key.
 
 ```jsonc
-// tasks.json
+// ~/.config/zed/tasks.json
 [
   {
     "label": "lazycph",
-    "command": "{path_to_lazycph_executable}",
-    "args": ["$ZED_FILE"],
+    "command": "uvx",
+    "args": ["lazycph", "$ZED_FILE"],
     "use_new_terminal": true,
   }
 ]
 ```
 
 ```jsonc
-// keymap.json
+// ~/config/zed/keymap.json
 {
   "context": "Workspace",
   "bindings": {
