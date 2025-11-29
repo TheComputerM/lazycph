@@ -7,10 +7,30 @@ requires-python = ">=3.13"
 dependencies = [
     "textual>=6.6.0",
 ]
+keywords = ["textual", "tui", "competitive-programming"]
+
+[project.urls]
+HomePage = "https://github.com/TheComputerM/lazycph"
+Repository = "https://github.com/TheComputerM/lazycph.git"
+
+[project.scripts]
+lazycph = "lazycph.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.taskipy.tasks]
+start = "textual run --dev src/lazycph/__main__.py"
+console = "textual console -x SYSTEM -x DEBUG -x EVENT"
+web = "textual serve src/lazycph/__main__.py"
+test = "pytest tests/ -v"
+build = "pyinstaller lazycph.spec"
 
 [dependency-groups]
 dev = [
     "pyinstaller>=6.17.0",
     "pytest>=9.0.1",
+    "taskipy>=1.14.1",
     "textual-dev>=1.8.0",
 ]
