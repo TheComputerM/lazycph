@@ -15,12 +15,8 @@ class CompilationError(Exception):
     Exception raised for errors during the compilation process of runtimes.
     """
 
-    def __init__(
-        self,
-        stderr: str,
-    ) -> None:
-        super().__init__("CompilationError")
-        self.stderr = stderr
+    stderr: str
 
-    def __str__(self):
-        return f"CompilationError: {self.stderr}"
+    def __init__(self, stderr: str) -> None:
+        self.stderr = stderr
+        super().__init__(f"CompilationError:\n{stderr}")
