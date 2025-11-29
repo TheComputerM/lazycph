@@ -48,9 +48,9 @@ class TestcaseItem(ListItem):
             output = f"{output} [{color}]({self.status.value})[/]"
         return output
 
-    def _compare_output(self) -> bool:
-        # TODO: More robust comparison
-        return self.output == self.expected_output
+    def _is_expected_output_correct(self) -> bool:
+        """Compare the actual output with the expected output."""
+        return self.output.split() == self.expected_output.split()
 
     @work(thread=True)
     def run(self, file: Path):
@@ -70,4 +70,6 @@ class TestcaseItem(ListItem):
             self.output = f"Unexpected Error: {e}"
             self.status = Status.UNKNOWN_ERROR
         else:
-            self.status = Status.CORRECT if self._compare_output() else Status.WRONG
+            self.status = (
+                Status.CORRECT if self._is_expected_output_correct() else Status.WRONG
+            )
