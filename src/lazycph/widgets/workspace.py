@@ -89,28 +89,31 @@ class Workspace(Grid):
 
     file: Path
 
-    _initial_testcases = [TestcaseItem()]
+    initial_testcases: list[TestcaseItem]
 
     def __init__(self, file: Path) -> None:
         super().__init__()
         self.file = file
-        if os.path.exists(self.save_file):
-            with open(self.save_file, "r") as f:
+        self.initial_testcases = [TestcaseItem()]
+
+        save_dir = Path(self.file.parent) / ".lazycph"
+        save_file = save_dir / f"{self.file.name}.json"
+        if os.path.exists(save_file):
+            with open(save_file, "r") as f:
                 import json
 
                 data = json.load(f)
                 assert isinstance(data, list)
-                self._initial_testcases = [
-                    TestcaseItem.from_json(item) for item in data
-                ]
-        elif not os.path.exists(self.save_dir):
-            os.makedirs(self.save_dir)
-            with open(self.save_dir / ".gitignore", "w") as f:
+                self.initial_testcases = [TestcaseItem.from_json(item) for item in data]
+        elif not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+            with open(save_dir / ".gitignore", "w") as f:
                 f.write("*")
                 f.flush()
 
     def compose(self) -> ComposeResult:
-        yield TestcaseList(*self._initial_testcases)
+        assert len(self.initial_testcases) > 0
+        yield TestcaseList(*self.initial_testcases)
         yield TextArea(
             id="input",
             placeholder="STDIN",
@@ -128,14 +131,6 @@ class Workspace(Grid):
             placeholder="Expected STDOUT",
             show_line_numbers=True,
         )
-
-    @property
-    def save_dir(self) -> Path:
-        return Path(self.file.parent) / ".lazycph"
-
-    @property
-    def save_file(self) -> Path:
-        return self.save_dir / f"{self.file.name}.json"
 
     @property
     def testcase_list(self) -> ListView:
@@ -182,7 +177,7 @@ class Workspace(Grid):
             for item in self.testcase_list.children
             if isinstance(item, TestcaseItem)
         ]
-        with open(self.save_file, "w") as f:
+        with open(Path(self.file.parent) / f".lazycph/{self.file.name}.json", "w") as f:
             import json
 
             json.dump(data, f)

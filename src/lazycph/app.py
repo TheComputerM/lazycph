@@ -36,7 +36,7 @@ class LazyCPH(App):
     ]
 
     base: Path
-    file: reactive[Optional[Path]] = reactive(None, recompose=True)
+    file: reactive[Optional[Path]] = reactive(None, recompose=True, always_update=True)
 
     def __init__(
         self,
