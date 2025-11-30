@@ -73,7 +73,7 @@ class Engine:
         return self.execute_interpreted(file, stdin, self.command)
 
 
-engines: dict[str, Engine] = {
+available: dict[str, Engine] = {
     ".py": Engine("python3 {file}", compiled=False),
     ".cpp": Engine("g++ {file} -o {temp} -std=c++17", compiled=True),
     ".c": Engine("g++ {file} -o {temp} -std=gnu23", compiled=True),
@@ -82,7 +82,7 @@ engines: dict[str, Engine] = {
 
 
 def execute(file: Path, stdin: str) -> str:
-    if file.suffix not in engines:
+    if file.suffix not in available:
         return "Unsupported file type"
-    command = engines[file.suffix]
+    command = available[file.suffix]
     return command.execute(file, stdin)

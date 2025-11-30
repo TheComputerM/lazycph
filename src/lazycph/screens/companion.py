@@ -6,9 +6,9 @@ from textual.screen import Screen
 from textual.widgets import Header, Label, ListItem, ListView
 
 from lazycph import workspace
-from lazycph.engines import engines
+from lazycph.engines import available
 
-_AVAILABLE_ENGINES = list(engines.keys())
+_VALID_EXTENSIONS = list(available.keys())
 
 
 class CompanionScreen(Screen[Path]):
@@ -50,13 +50,13 @@ class CompanionScreen(Screen[Path]):
             yield ListView(
                 *[
                     ListItem(Label(f"{self.data['name']}{suffix}"))
-                    for suffix in _AVAILABLE_ENGINES
+                    for suffix in _VALID_EXTENSIONS
                 ]
             )
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         event.stop()
-        suffix = _AVAILABLE_ENGINES[event.index]
+        suffix = _VALID_EXTENSIONS[event.index]
 
         group = self.base.joinpath(self.data["group"])
         group.mkdir(exist_ok=True)

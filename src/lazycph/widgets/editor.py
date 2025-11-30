@@ -14,7 +14,7 @@ from lazycph.widgets.testcase_item import TestcaseItem
 from lazycph.widgets.testcase_list import TestcaseList
 
 
-def debounce(wait_time=0.3):
+def debounce(wait_time: float):
     """
     Decorator that will postpone a function's execution until after wait_time seconds
     have elapsed since the last time it was invoked.
@@ -158,7 +158,7 @@ class Editor(Grid):
     def action_next_testcase(self) -> None:
         self.testcase_list.action_cursor_down()
 
-    @debounce()
+    @debounce(0.3)
     def action_save_state(self) -> None:
         """
         Save the current state of the workspace (testcases) to a JSON file.
