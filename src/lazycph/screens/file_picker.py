@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Iterable
 
 from textual.app import ComposeResult
+from textual.containers import Container
 from textual.reactive import var
 from textual.screen import ModalScreen
 from textual.widgets import DirectoryTree, Footer, Header, Input
@@ -49,8 +50,10 @@ class FilePicker(ModalScreen[Path]):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield Input(placeholder="Search for file...")
-        yield SourceTree(self.base).data_bind(search=FilePicker.search)
+        with Container() as container:
+            container.styles.margin = (1, 0)
+            yield Input(placeholder="Search for file...")
+            yield SourceTree(self.base).data_bind(search=FilePicker.search)
         yield Footer()
 
     def on_directory_tree_file_selected(self, event: SourceTree.FileSelected) -> None:
