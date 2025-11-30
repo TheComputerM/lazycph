@@ -4,8 +4,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-from lazycph.runtimes import utils
-from lazycph.runtimes.executor import execute
+from lazycph.runtimes import CompilationError, execute
 
 
 class TestPython:
@@ -18,7 +17,7 @@ class TestPython:
 
     def test_timeout(self):
         with NamedTemporaryFile(suffix=".py", mode="w+") as file:
-            file.write(f"import time\ntime.sleep({utils.TIMEOUT + 1})")
+            file.write("import time\ntime.sleep(100)")
             file.flush()
             with pytest.raises(subprocess.TimeoutExpired):
                 execute(Path(file.name), "")
@@ -47,7 +46,7 @@ int main() { printf("hello world"); return 0; }
         with NamedTemporaryFile(suffix=".cpp", mode="w+") as file:
             file.write("MAKIMA IS LISTENING")
             file.flush()
-            with pytest.raises(utils.CompilationError):
+            with pytest.raises(CompilationError):
                 execute(Path(file.name), "")
 
     def test_runtime_error(self):
@@ -73,7 +72,7 @@ int main() { printf("hello world"); return 0; }
         with NamedTemporaryFile(suffix=".c", mode="w+") as file:
             file.write("MAKIMA IS LISTENING")
             file.flush()
-            with pytest.raises(utils.CompilationError):
+            with pytest.raises(CompilationError):
                 execute(Path(file.name), "")
 
     def test_runtime_error(self):

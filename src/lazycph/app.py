@@ -13,7 +13,7 @@ from textual.widgets import (
     Label,
 )
 
-from lazycph.screens import FilePicker
+from lazycph.screens.file_picker import FilePicker
 from lazycph.widgets.workspace import Workspace
 
 

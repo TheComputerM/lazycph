@@ -6,13 +6,11 @@ from textual.reactive import var
 from textual.screen import Screen
 from textual.widgets import DirectoryTree, Footer, Header, Input
 
-from lazycph.runtimes import utils
+from lazycph.runtimes import runtimes
 
 
 class SourceTree(DirectoryTree):
     search: var[str] = var("")
-
-    VALID_EXTENSIONS = [e.value for e in utils.RuntimeExtension]
 
     DEFAULT_CSS = """
     SourceTree {
@@ -31,7 +29,7 @@ class SourceTree(DirectoryTree):
             if (
                 path.is_dir()
                 or (
-                    path.suffix in SourceTree.VALID_EXTENSIONS
+                    path.suffix in runtimes.keys()
                     and self.search.lower() in path.name.lower()
                 )
             )
