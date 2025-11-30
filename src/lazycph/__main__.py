@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 
+from lazycph import __version__
 from lazycph.app import LazyCPH
 
 
@@ -15,6 +16,12 @@ def validate_target_path(path_str):
 def parse_arguments():
     parser = argparse.ArgumentParser(
         prog="LazyCPH", description="Competitive Programming Helper"
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
     )
     parser.add_argument(
         "target",
