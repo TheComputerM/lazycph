@@ -15,7 +15,7 @@ class CompilationError(Exception):
         super().__init__(f"CompilationError:\n{stderr}")
 
 
-class Runtime:
+class Engine:
     command: str
     compiled: bool
 
@@ -73,16 +73,16 @@ class Runtime:
         return self.execute_interpreted(file, stdin, self.command)
 
 
-runtimes: dict[str, Runtime] = {
-    ".py": Runtime("python3 {file}", compiled=False),
-    ".cpp": Runtime("g++ {file} -o {temp} -std=c++17", compiled=True),
-    ".c": Runtime("g++ {file} -o {temp} -std=gnu23", compiled=True),
-    ".rs": Runtime("rustc {file} -o {temp}", compiled=True),
+engines: dict[str, Engine] = {
+    ".py": Engine("python3 {file}", compiled=False),
+    ".cpp": Engine("g++ {file} -o {temp} -std=c++17", compiled=True),
+    ".c": Engine("g++ {file} -o {temp} -std=gnu23", compiled=True),
+    ".rs": Engine("rustc {file} -o {temp}", compiled=True),
 }
 
 
 def execute(file: Path, stdin: str) -> str:
-    if file.suffix not in runtimes:
+    if file.suffix not in engines:
         return "Unsupported file type"
-    command = runtimes[file.suffix]
+    command = engines[file.suffix]
     return command.execute(file, stdin)

@@ -7,7 +7,7 @@ from textual.app import RenderResult
 from textual.reactive import reactive, var
 from textual.widgets import ListItem
 
-from lazycph.runtimes import CompilationError, execute
+from lazycph.engines import CompilationError, execute
 
 
 class Status(Enum):

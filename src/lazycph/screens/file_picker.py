@@ -6,7 +6,7 @@ from textual.reactive import var
 from textual.screen import Screen
 from textual.widgets import DirectoryTree, Footer, Header, Input
 
-from lazycph.runtimes import runtimes
+from lazycph.engines import engines
 
 
 class SourceTree(DirectoryTree):
@@ -29,7 +29,7 @@ class SourceTree(DirectoryTree):
             if (
                 path.is_dir()
                 or (
-                    path.suffix in runtimes.keys()
+                    path.suffix in engines.keys()
                     and self.search.lower() in path.name.lower()
                 )
             )

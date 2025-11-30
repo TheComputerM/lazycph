@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-from lazycph.runtimes import CompilationError, execute
+from lazycph.engines import CompilationError, execute
 
 
 class TestPython:
