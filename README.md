@@ -84,6 +84,9 @@ You can easily integrate LazyCPH with the [Zed](https://zed.dev) editor for a se
 }
 ```
 
+<video src="https://github.com/user-attachments/assets/a18089c0-594b-4bf6-8053-92a924c2af91"></video>
+[Zed Demo](https://github.com/TheComputerM/lazycph/blob/main/assets/zed.mp4)
+
 ## Web UI
 
 You can also run LazyCPH in a web browser (for whatever reason you desire) because it's made with [Textual](https://textual.textualize.io/), first create a file name *web.py* in the folder with your source code.
@@ -105,9 +108,6 @@ uv run web.py
 ```
 
 So now whenever you press your keybind (alt+g in this case), a new terminal window opens with LazyCPH running on the current file. [See how it looks](./assets/zed.mp4).
-
-<video src="https://github.com/user-attachments/assets/a18089c0-594b-4bf6-8053-92a924c2af91"></video>
-[Zed Demo](https://github.com/TheComputerM/lazycph/blob/main/assets/zed.mp4)
 
 ## 🛠️ Development
 
