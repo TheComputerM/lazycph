@@ -94,6 +94,9 @@ class LazyCPH(App):
         import json
         from http.server import BaseHTTPRequestHandler, HTTPServer
 
+        def set_file(file: Path | None) -> None:
+            self.file = file
+
         app = self
 
         class CompanionHandler(BaseHTTPRequestHandler):
@@ -101,11 +104,10 @@ class LazyCPH(App):
                 content_length = int(self.headers.get("Content-Length", 0))
                 raw = self.rfile.read(content_length)
                 data = json.loads(raw)
-                file = app.call_from_thread(
-                    app.push_screen_wait, CompanionScreen(data, app.base)
+
+                app.call_from_thread(
+                    app.push_screen, CompanionScreen(data, app.base), set_file
                 )
-                assert isinstance(file, Path)
-                app.call_from_thread(setattr, app, "file", file)
 
         httpd = HTTPServer(("localhost", 27121), CompanionHandler)
         httpd.timeout = 0.5
