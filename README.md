@@ -6,10 +6,11 @@ A beautiful Terminal User Interface (TUI) for competitive programming that helps
 
 ## ✨ Features
 
-- 🎨 **Beautiful TUI** - Modern terminal interface built with [Textual](https://github.com/Textualize/textual)
-- 🧪 **Easy CRUD** - Create, manage, and run multiple test cases for your solution
-- 🌐 **Multiple Languages** - C,C++,Python,Rust are supported out of the box
-- ⚡  **Fast** - Edit and Run your testcases quickly
+- **Beautiful TUI** - Modern terminal interface built with [Textual](https://github.com/Textualize/textual)
+- **Competitive Companion** - Compatible with the [competitive companion](https://github.com/jmerle/competitive-companion) browser extension
+- **Easy CRUD** - Create, manage, and run multiple test cases for your solution
+- **Multiple Languages** - C,C++,Python,Rust are supported out of the box
+- **Fast** - Edit and Run your testcases quickly
 
 ## 🚀 Installation
 
@@ -39,6 +40,20 @@ Open a specific file:
 ```bash
 lazycph solution.py
 ```
+
+### With [Competitive Companion](https://github.com/jmerle/competitive-companion)
+
+LazyCPH also allows you to import problems and testcases directly from platforms like codeforces use the competitive companion browser extension.
+
+```sh
+lazycph --companion
+# or
+lazycph -c
+```
+
+<video src="https://github.com/user-attachments/assets/847adb36-1e08-4809-8b30-80eba615739e"></video>
+[Companion Demo](https://github.com/TheComputerM/lazycph/blob/main/assets/companion.mp4)
+
 
 ## Integration with Zed
 
@@ -89,11 +104,10 @@ And then run:
 uv run web.py
 ```
 
-
-
 So now whenever you press your keybind (alt+g in this case), a new terminal window opens with LazyCPH running on the current file. [See how it looks](./assets/zed.mp4).
 
 <video src="https://github.com/user-attachments/assets/a18089c0-594b-4bf6-8053-92a924c2af91"></video>
+[Zed Demo](https://github.com/TheComputerM/lazycph/blob/main/assets/zed.mp4)
 
 ## 🛠️ Development
 
