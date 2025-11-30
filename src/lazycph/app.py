@@ -20,8 +20,6 @@ from lazycph.widgets.editor import Editor
 
 
 class LazyCPH(App):
-    TITLE = "LazyCPH"
-    SUB_TITLE = "Competitive Programming Helper"
     DEFAULT_CSS = """
     #main {
         grid-size: 2;
@@ -33,6 +31,8 @@ class LazyCPH(App):
         padding: 1 0;
     }
     """
+    TITLE = "LazyCPH"
+    SUB_TITLE = "Competitive Programming Helper"
     BINDINGS = [
         Binding("ctrl+f", "choose_file", "select file"),
     ]

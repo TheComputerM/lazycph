@@ -6,11 +6,7 @@ from lazycph.widgets.testcase_item import TestcaseItem
 
 
 class TestcaseList(ListView):
-    DEFAULT_CSS = """
-    TestcaseList {
-        row-span: 2;
-    }
-    """
+    DEFAULT_CSS = "TestcaseList {row-span: 2;}"
 
     BINDINGS = [
         Binding("c", "create", "create"),

@@ -21,11 +21,7 @@ class Status(Enum):
 
 
 class TestcaseItem(ListItem):
-    DEFAULT_CSS = """
-    TestcaseItem {
-        padding: 1;
-    }
-    """
+    DEFAULT_CSS = "TestcaseItem {padding: 1;}"
 
     input: var[str] = var("")
     output: var[str] = var("")
