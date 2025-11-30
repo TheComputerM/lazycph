@@ -1,4 +1,3 @@
-import os
 import threading
 from functools import wraps
 from pathlib import Path
@@ -10,6 +9,7 @@ from textual.binding import Binding
 from textual.containers import Grid
 from textual.widgets import ListView, TextArea
 
+from lazycph import workspace
 from lazycph.widgets.testcase_item import TestcaseItem
 from lazycph.widgets.testcase_list import TestcaseList
 
@@ -94,22 +94,14 @@ class Workspace(Grid):
     def __init__(self, file: Path) -> None:
         super().__init__()
         self.file = file
-        self.initial_testcases = [TestcaseItem()]
 
-        save_dir = Path(self.file.parent) / ".lazycph"
-        save_file = save_dir / f"{self.file.name}.json"
-        if os.path.exists(save_file):
-            with open(save_file, "r") as f:
-                import json
-
-                data = json.load(f)
-                assert isinstance(data, list)
-                self.initial_testcases = [TestcaseItem.from_json(item) for item in data]
-        elif not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-            with open(save_dir / ".gitignore", "w") as f:
-                f.write("*")
-                f.flush()
+        save_data = workspace.read_save(file)
+        if save_data is None:
+            self.initial_testcases = [TestcaseItem()]
+        else:
+            self.initial_testcases = [
+                TestcaseItem.from_json(item) for item in save_data
+            ]
 
     def compose(self) -> ComposeResult:
         assert len(self.initial_testcases) > 0
@@ -177,10 +169,7 @@ class Workspace(Grid):
             for item in self.testcase_list.children
             if isinstance(item, TestcaseItem)
         ]
-        with open(Path(self.file.parent) / f".lazycph/{self.file.name}.json", "w") as f:
-            import json
-
-            json.dump(data, f)
+        workspace.save_file(self.file, data)
 
     def on_mount(self) -> None:
         def update_output(output: str):
