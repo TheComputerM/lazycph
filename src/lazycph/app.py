@@ -1,3 +1,4 @@
+import socket
 from pathlib import Path
 from typing import Optional
 
@@ -17,6 +18,19 @@ from textual.worker import get_current_worker
 from lazycph.screens.companion import CompanionScreen
 from lazycph.screens.file_picker import FilePicker
 from lazycph.widgets.editor import Editor
+
+
+def get_port() -> int:
+    # ports on which competitive companion posts data
+    ports = [1327, 4244, 6174, 10042, 10043, 10045, 27121]
+    for port in ports:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind(("localhost", port))
+                return port
+            except OSError:
+                continue
+    raise Exception("No free port found")
 
 
 class LazyCPH(App):
@@ -104,12 +118,11 @@ class LazyCPH(App):
                 content_length = int(self.headers.get("Content-Length", 0))
                 raw = self.rfile.read(content_length)
                 data = json.loads(raw)
-
                 app.call_from_thread(
                     app.push_screen, CompanionScreen(data, app.base), set_file
                 )
 
-        httpd = HTTPServer(("localhost", 27121), CompanionHandler)
+        httpd = HTTPServer(("localhost", get_port()), CompanionHandler)
         httpd.timeout = 0.5
         worker = get_current_worker()
         while not worker.is_cancelled:
