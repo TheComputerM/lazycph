@@ -77,6 +77,7 @@ runtimes: dict[str, Runtime] = {
     ".py": Runtime("python3 {file}", compiled=False),
     ".cpp": Runtime("g++ {file} -o {temp} -std=c++17", compiled=True),
     ".c": Runtime("g++ {file} -o {temp} -std=gnu23", compiled=True),
+    ".rs": Runtime("rustc {file} -o {temp}", compiled=True),
 }
 
 
