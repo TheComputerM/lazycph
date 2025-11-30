@@ -58,7 +58,11 @@ class CompanionScreen(Screen[Path]):
         event.stop()
         suffix = _VALID_EXTENSIONS[event.index]
 
-        group = self.base.joinpath(self.data["group"])
+        group = (
+            self.base
+            if self.base.name == self.data["group"]
+            else self.base.joinpath(self.data["group"])
+        )
         group.mkdir(exist_ok=True)
 
         file = group.joinpath(f"{self.data['name']}{suffix}")
