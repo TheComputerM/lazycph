@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from textual import on
+from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import CenterMiddle
@@ -12,7 +12,9 @@ from textual.widgets import (
     Header,
     Label,
 )
+from textual.worker import get_current_worker
 
+from lazycph.screens.companion import CompanionScreen
 from lazycph.screens.file_picker import FilePicker
 from lazycph.widgets.workspace import Workspace
 
@@ -38,14 +40,18 @@ class LazyCPH(App):
     base: Path
     file: reactive[Optional[Path]] = reactive(None, recompose=True, always_update=True)
 
+    companion_mode: bool
+
     def __init__(
         self,
         base: Path,
         selected: Optional[Path] = None,
+        companion: bool = False,
     ):
         super().__init__()
         self.base = base
         self.set_reactive(LazyCPH.file, selected)
+        self.companion_mode = companion
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -74,7 +80,36 @@ class LazyCPH(App):
 
         self.push_screen(FilePicker(self.base), set_file)
 
-    def on_mount(self) -> None:
+    def on_load(self) -> None:
         self.theme = "tokyo-night"
+
+    def on_mount(self) -> None:
+        if self.companion_mode:
+            self.run_companion_server()
         if self.file is None:
             self.action_choose_file()
+
+    @work(thread=True, exclusive=True)
+    def run_companion_server(self) -> None:
+        import json
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+
+        app = self
+
+        class CompanionHandler(BaseHTTPRequestHandler):
+            def do_POST(self):
+                content_length = int(self.headers.get("Content-Length", 0))
+                raw = self.rfile.read(content_length)
+                data = json.loads(raw)
+                file = app.call_from_thread(
+                    app.push_screen_wait, CompanionScreen(data, app.base)
+                )
+                assert isinstance(file, Path)
+                app.call_from_thread(setattr, app, "file", file)
+
+        httpd = HTTPServer(("localhost", 27121), CompanionHandler)
+        httpd.timeout = 0.5
+        worker = get_current_worker()
+        while not worker.is_cancelled:
+            httpd.handle_request()
+        httpd.server_close()

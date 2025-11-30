@@ -23,6 +23,13 @@ def parse_arguments():
         type=validate_target_path,
         help="Target directory or file",
     )
+    parser.add_argument(
+        "-c",
+        "--companion",
+        action="store_true",
+        default=False,
+        help="Enable companion mode",
+    )
     return parser.parse_args()
 
 
@@ -32,7 +39,7 @@ def main() -> None:
 
     base = args.target if args.target.is_dir() else Path.cwd()
     selected = args.target if args.target.is_file() else None
-    app = LazyCPH(base, selected)
+    app = LazyCPH(base, selected, args.companion)
     app.run()
 
 

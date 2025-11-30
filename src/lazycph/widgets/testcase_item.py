@@ -11,7 +11,7 @@ from lazycph.engines import CompilationError, execute
 
 
 class Status(Enum):
-    PENDING = "PE"
+    INITIAL = None
     CORRECT = "CA"
     WRONG = "WA"
     COMPILATION_ERROR = "CE"
@@ -31,7 +31,7 @@ class TestcaseItem(ListItem):
     output: var[str] = var("")
     expected_output: var[str] = var("")
 
-    status: reactive[Status] = reactive(Status.PENDING)
+    status: reactive[Status] = reactive(Status.INITIAL)
 
     @property
     def index(self) -> int:
@@ -41,7 +41,7 @@ class TestcaseItem(ListItem):
 
     def render(self) -> RenderResult:
         output = f"Testcase {self.index}"
-        if self.status is not Status.PENDING:
+        if self.status is not Status.INITIAL:
             color = "$text-success"
             if self.status is not Status.CORRECT:
                 color = "$text-error"

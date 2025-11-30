@@ -26,7 +26,7 @@ class Engine:
     @staticmethod
     def execute_interpreted(file: Path, stdin: str, command: str) -> str:
         result = subprocess.run(
-            command.format(file=file.absolute()),
+            command.format(file=f'"{file.resolve()}"'),
             shell=True,
             check=True,
             capture_output=True,
@@ -43,7 +43,7 @@ class Engine:
 
         try:
             compile_result = subprocess.run(
-                command.format(file=file.absolute(), temp=exe_path),
+                command.format(file=f'"{file.resolve()}"', temp=exe_path),
                 shell=True,
                 text=True,
                 capture_output=True,
