@@ -7,7 +7,7 @@ from lazycph.app import LazyCPH
 
 def validate_target_path(path_str):
     """Validate that the target path exists."""
-    path = Path(path_str)
+    path = Path(path_str).resolve()
     if not path.exists():
         raise argparse.ArgumentTypeError(f"Path '{path_str}' does not exist")
     return path
@@ -44,8 +44,12 @@ def main() -> None:
     args = parse_arguments()
     assert isinstance(args.target, Path)
 
-    base = args.target if args.target.is_dir() else Path.cwd()
-    selected = args.target if args.target.is_file() else None
+    base, selected = (
+        (args.target.parent, args.target)
+        if args.target.is_file()
+        else (args.target, None)
+    )
+
     app = LazyCPH(base, selected, args.companion)
     app.run()
 
