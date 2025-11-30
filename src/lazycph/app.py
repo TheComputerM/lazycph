@@ -16,7 +16,7 @@ from textual.worker import get_current_worker
 
 from lazycph.screens.companion import CompanionScreen
 from lazycph.screens.file_picker import FilePicker
-from lazycph.widgets.workspace import Workspace
+from lazycph.widgets.editor import Editor
 
 
 class LazyCPH(App):
@@ -63,7 +63,7 @@ class LazyCPH(App):
         _btn.can_focus = False
         yield _btn
         if self.file:
-            yield Workspace(file=self.file)
+            yield Editor(file=self.file)
         else:
             # When no file is chosen, show a message in the center
             yield CenterMiddle(Label("Select your file (^f) to begin."))

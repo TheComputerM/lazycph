@@ -47,18 +47,18 @@ def debounce(wait_time=0.3):
     return decorator
 
 
-class Workspace(Grid):
+class Editor(Grid):
     DEFAULT_CSS = """
-    Workspace {
+    Editor {
         grid-size: 3 2;
         grid-columns: 28 1fr 1fr;
     }
 
-    Workspace > TextArea {
+    Editor > TextArea {
         border: thick $boost;
     }
 
-    Workspace > TextArea:focus {
+    Editor > TextArea:focus {
         border: thick $primary;
     }
 
