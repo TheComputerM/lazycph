@@ -52,14 +52,13 @@ class Editor(Grid):
     Editor {
         grid-size: 3 2;
         grid-columns: 28 1fr 1fr;
-    }
 
-    Editor > TextArea {
-        border: thick $boost;
-    }
-
-    Editor > TextArea:focus {
-        border: thick $primary;
+        & > TextArea {
+            border: thick $boost;
+            &:focus {
+                border: thick $primary;
+            }
+        }
     }
 
     #stdout {

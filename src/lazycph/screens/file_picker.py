@@ -3,21 +3,21 @@ from typing import Iterable
 
 from textual.app import ComposeResult
 from textual.reactive import var
-from textual.screen import Screen
+from textual.screen import ModalScreen
 from textual.widgets import DirectoryTree, Footer, Header, Input
 
 from lazycph.engines import engines
 
 
 class SourceTree(DirectoryTree):
-    search: var[str] = var("")
-
     DEFAULT_CSS = """
     SourceTree {
         padding: 1 1;
         margin: 0 1;
     }
     """
+
+    search: var[str] = var("")
 
     async def watch_search(self, _: str) -> None:
         self.run_worker(self.reload(), name="reload_tree_search")
@@ -36,7 +36,7 @@ class SourceTree(DirectoryTree):
         ]
 
 
-class FilePicker(Screen[Path]):
+class FilePicker(ModalScreen[Path]):
     TITLE = "Select a file"
     BINDINGS = [("escape", "app.pop_screen", "Close file picker")]
 

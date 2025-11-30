@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from textual.app import ComposeResult
+from textual.containers import CenterMiddle
 from textual.screen import Screen
 from textual.widgets import Header, Label, ListItem, ListView
 
@@ -11,8 +12,31 @@ _AVAILABLE_ENGINES = list(engines.keys())
 
 
 class CompanionScreen(Screen[Path]):
+    DEFAULT_CSS = """
+    CompanionScreen {
+        align: center middle;
+
+        & > CenterMiddle {
+            width: 60;
+            height: auto;
+            padding: 1;
+            background: $surface;
+            background-tint: $foreground 5%;
+
+            border: tab $secondary;
+            border-title-align: center;
+
+            & > ListView {
+                height: auto;
+            }
+        }
+    }
+    """
+
     TITLE = "Companion Mode"
-    SUB_TITLE = "Select Runtime"
+    SUB_TITLE = "Select Language"
+
+    BINDINGS = [("escape", "app.pop_screen", "Close modal")]
 
     def __init__(self, data: dict, base: Path) -> None:
         super().__init__()
@@ -21,16 +45,23 @@ class CompanionScreen(Screen[Path]):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield ListView(*[ListItem(Label(name)) for name in _AVAILABLE_ENGINES])
+        with CenterMiddle() as container:
+            container.border_title = self.data["group"]
+            yield ListView(
+                *[
+                    ListItem(Label(f"{self.data['name']}{suffix}"))
+                    for suffix in _AVAILABLE_ENGINES
+                ]
+            )
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         event.stop()
-        extension = _AVAILABLE_ENGINES[event.index]
+        suffix = _AVAILABLE_ENGINES[event.index]
 
         group = self.base.joinpath(self.data["group"])
         group.mkdir(exist_ok=True)
 
-        file = group.joinpath(self.data["name"]).with_suffix(extension)
+        file = group.joinpath(f"{self.data['name']}{suffix}")
 
         testcases = [
             {
@@ -43,7 +74,8 @@ class CompanionScreen(Screen[Path]):
         ]
 
         workspace.save_file(file, testcases)
-
         file.write_text("")
-
         self.dismiss(file)
+
+    def on_mount(self) -> None:
+        self.query_one(ListView).focus()
