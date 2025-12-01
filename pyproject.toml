@@ -40,6 +40,7 @@ build = "pyinstaller lazycph.spec"
 dev = [
     "pyinstaller>=6.17.0",
     "pytest>=9.0.1",
+    "ruff>=0.14.7",
     "taskipy>=1.14.1",
     "textual-dev>=1.8.0",
 ]

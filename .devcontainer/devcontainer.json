@@ -1,0 +1,11 @@
+{
+  "image": "ghcr.io/devcontainers/templates/alpine:3.4.0",
+  "features": {
+    "ghcr.io/devcontainer-community/devcontainer-features/astral.sh-uv:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "charliermarsh.ruff"]
+    }
+  }
+}
