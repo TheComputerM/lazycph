@@ -49,6 +49,7 @@ class LazyCPH(App):
     SUB_TITLE = "Competitive Programming Helper"
     BINDINGS = [
         Binding("ctrl+f", "choose_file", "select file"),
+        Binding("q", "app.quit", "close"),
     ]
 
     base: Path

@@ -8,9 +8,10 @@ from lazycph.widgets.testcase_item import TestcaseItem
 class TestcaseList(ListView):
     DEFAULT_CSS = "TestcaseList {row-span: 2;}"
 
+    BINDING_GROUP_TITLE = "Testcases"
     BINDINGS = [
-        Binding("c", "create", "create"),
-        Binding("d", "delete", "delete"),
+        Binding("c", "create", "create", tooltip="create new testcase"),
+        Binding("d", "delete", "delete", tooltip="delete selected testcase"),
         Binding("right", "app.focus('input')", "Focus input", show=False),
     ]
 

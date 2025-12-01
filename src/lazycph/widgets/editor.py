@@ -7,6 +7,7 @@ from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid
+from textual.events import Click
 from textual.widgets import ListView, TextArea
 
 from lazycph import workspace
@@ -66,9 +67,11 @@ class Editor(Grid):
     }
     """
 
+    BINDING_GROUP_TITLE = "Workspace"
+
     BINDINGS = [
-        Binding("ctrl+r", "run", "run"),
-        Binding("ctrl+shift+r", "run_all", "run all"),
+        Binding("ctrl+r", "run", "run", tooltip="run selected testcase"),
+        Binding("ctrl+shift+r", "run_all", "run all", tooltip="run all testcases"),
         Binding(
             "escape", "app.focus('testcase-list')", "focus on testcases", show=False
         ),
@@ -107,19 +110,19 @@ class Editor(Grid):
         yield TestcaseList(*self.initial_testcases)
         yield TextArea(
             id="input",
-            placeholder="STDIN",
+            placeholder="[i]STDIN[/i]",
             show_line_numbers=True,
         )
         yield TextArea(
             id="stdout",
-            placeholder="Run (^r) the testcase to see the output",
+            placeholder="Run [i](^r)[/i] the testcase to see the output",
             show_line_numbers=True,
             read_only=True,
             compact=True,
         )
         yield TextArea(
             id="expected-output",
-            placeholder="Expected STDOUT",
+            placeholder="Expected [i]STDOUT[/i]",
             show_line_numbers=True,
         )
 
@@ -143,6 +146,13 @@ class Editor(Grid):
         self.selected_testcase.expected_output = event.control.text
         self.action_save_state()
 
+    @on(Click, "TextArea")
+    async def handle_text_area_click(self, event: Click) -> None:
+        assert isinstance(event.control, TextArea)
+        if event.chain == 2:
+            await event.control.run_action("select_all")
+            await event.control.run_action("copy")
+
     def action_run(self) -> None:
         self.selected_testcase.run(self.file)
         self.action_save_state()
@@ -152,11 +162,11 @@ class Editor(Grid):
             assert isinstance(item, TestcaseItem)
             item.run(self.file)
 
-    def action_prev_testcase(self) -> None:
-        self.testcase_list.action_cursor_up()
+    async def action_prev_testcase(self) -> None:
+        await self.testcase_list.run_action("cursor_up")
 
-    def action_next_testcase(self) -> None:
-        self.testcase_list.action_cursor_down()
+    async def action_next_testcase(self) -> None:
+        await self.testcase_list.run_action("cursor_down")
 
     @debounce(0.3)
     def action_save_state(self) -> None:
