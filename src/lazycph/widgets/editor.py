@@ -139,23 +139,19 @@ class Editor(Grid):
     @on(TextArea.Changed, "#input")
     def handle_input_changed(self, event: TextArea.Changed) -> None:
         self.selected_testcase.input = event.control.text
-        self.action_save_state()
 
     @on(TextArea.Changed, "#expected-output")
     def handle_expected_output_changed(self, event: TextArea.Changed) -> None:
         self.selected_testcase.expected_output = event.control.text
-        self.action_save_state()
 
     @on(Click, "TextArea")
     async def handle_text_area_click(self, event: Click) -> None:
         assert isinstance(event.control, TextArea)
         if event.chain == 2:
             await event.control.run_action("select_all")
-            await event.control.run_action("copy")
 
     def action_run(self) -> None:
         self.selected_testcase.run(self.file)
-        self.action_save_state()
 
     def action_run_all(self) -> None:
         for item in self.testcase_list.children:
@@ -194,6 +190,10 @@ class Editor(Grid):
             self.query_one("#expected-output", TextArea).text = item.expected_output
             self.query_one("#stdout", TextArea).text = item.output
             self.watch(item, "output", update_output)
+
+            self.watch(item, "input", self.action_save_state)
+            self.watch(item, "output", self.action_save_state)
+            self.watch(item, "expected_output", self.action_save_state)
 
         self.watch(self.testcase_list, "index", update_selected)
         self.query_one("#stdout", TextArea).can_focus = False
