@@ -1,6 +1,6 @@
 [project]
 name = "lazycph"
-version = "1.2.0"
+version = "1.2.1"
 description = "Competitive Programming Helper"
 readme = "README.md"
 requires-python = ">=3.13"
