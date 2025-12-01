@@ -38,8 +38,11 @@ class Engine:
 
     @staticmethod
     def execute_compiled(file: Path, stdin: str, command: str) -> str:
-        with tempfile.NamedTemporaryFile(suffix="", delete=False) as temp_exe:
-            exe_path = temp_exe.name
+        from random import choices
+        from string import ascii_letters
+
+        random_name = "".join(choices(ascii_letters, k=8))
+        exe_path = Path(tempfile.gettempdir()) / f"lazycph-{random_name}"
 
         try:
             compile_result = subprocess.run(
@@ -57,9 +60,11 @@ class Engine:
                 [exe_path],
                 check=True,
                 text=True,
-                capture_output=True,
                 input=stdin,
                 timeout=5.0,
+                cwd=file.parent,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
             )
 
             return run_result.stdout.strip()
@@ -68,6 +73,8 @@ class Engine:
             Path(exe_path).unlink(missing_ok=True)
 
     def execute(self, file: Path, stdin: str) -> str:
+        assert file.is_file(), "The provided path is not a file."
+        assert file.exists(), "The provided file does not exist."
         if self.compiled:
             return self.execute_compiled(file, stdin, self.command)
         return self.execute_interpreted(file, stdin, self.command)
