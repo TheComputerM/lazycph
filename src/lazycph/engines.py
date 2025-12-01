@@ -85,6 +85,7 @@ available: dict[str, Engine] = {
     ".cpp": Engine("g++ {file} -o {temp} -std=c++17", compiled=True),
     ".c": Engine("g++ {file} -o {temp} -std=gnu23", compiled=True),
     ".rs": Engine("rustc {file} -o {temp}", compiled=True),
+    ".zig": Engine("zig build-exe {file} -femit-bin={temp}", compiled=True),
 }
 
 

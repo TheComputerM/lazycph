@@ -9,7 +9,7 @@ A beautiful Terminal User Interface (TUI) for competitive programming that helps
 - **Beautiful TUI** - Modern terminal interface built with [Textual](https://github.com/Textualize/textual)
 - **Competitive Companion** - Compatible with the [competitive companion](https://github.com/jmerle/competitive-companion) browser extension
 - **Easy CRUD** - Create, manage, and run multiple test cases for your solution
-- **Multiple Languages** - C,C++,Python,Rust are supported out of the box
+- **Multiple Languages** - C,C++,Python,Rust,Zig are supported out of the box
 - **Fast** - Edit and Run your testcases quickly
 
 ## 🚀 Installation

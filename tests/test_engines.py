@@ -81,3 +81,24 @@ int main() { printf("hello world"); return 0; }
             file.flush()
             with pytest.raises(subprocess.CalledProcessError):
                 execute(Path(file.name), "")
+
+
+class TestRust:
+    def test_basic(self):
+        with NamedTemporaryFile(suffix=".rs", mode="w") as file:
+            file.write("""fn main() {println!("hello world");}""")
+            file.flush()
+            output = execute(Path(file.name), "")
+            assert output == "hello world"
+
+
+class TestZig:
+    def test_basic(self):
+        with NamedTemporaryFile(suffix=".zig", mode="w") as file:
+            file.write("""const std = @import("std");
+pub fn main() !void {
+    std.debug.print("hello world", .{});
+}""")
+            file.flush()
+            output = execute(Path(file.name), "")
+            assert output == "hello world"
