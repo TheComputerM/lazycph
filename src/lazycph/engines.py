@@ -2,17 +2,16 @@ import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
-
-
+from shlex import quote
+from typing import Any, Literal
 
 
 def _run_command(
     cmd: str | list[str],
-    stdin: str,
+    stdin: str | None,
     timeout: float,
     check: bool = True,
-    **kwargs,
+    **kwargs: Any,
 ) -> subprocess.CompletedProcess[str]:
     """
     Run a subprocess with common options: text mode, check for errors,
@@ -35,11 +34,18 @@ class CompilationError(Exception):
     Exception raised for errors during the compilation process of runtimes.
     """
 
-    stderr: str
+    output: str
+    command: str
+    returncode: int
 
-    def __init__(self, stderr: str) -> None:
-        self.stderr = stderr
-        super().__init__(f"CompilationError:\n{stderr}")
+    def __init__(self, output: str, command: str, returncode: int) -> None:
+        self.output = output
+        self.command = command
+        self.returncode = returncode
+        super().__init__(str(self))
+
+    def __str__(self) -> str:
+        return f"Compilation failed (exit code {self.returncode}):\n{self.output}"
 
 
 @dataclass
@@ -51,7 +57,7 @@ class Engine:
 
     def _interpret(self, file: Path, stdin: str) -> str:
         result = _run_command(
-            self.command.format(file=f'"{file.resolve()}"'),
+            self.command.format(file=quote(str(file.resolve()))),
             stdin=stdin,
             timeout=self.execution_timeout,
             shell=True,
@@ -67,16 +73,24 @@ class Engine:
         exe_path = Path(tempfile.gettempdir()) / f"lazycph-{random_name}"
 
         try:
+            compile_command = self.command.format(
+                file=quote(str(file.resolve())), temp=exe_path
+            )
             compile_result = _run_command(
-                self.command.format(file=f'"{file.resolve()}"', temp=exe_path),
-                stdin="",
+                compile_command,
+                stdin=None,
                 timeout=self.compile_timeout,
                 shell=True,
                 check=False,
+                cwd=exe_path.parent,
             )
 
             if compile_result.returncode != 0:
-                raise CompilationError(compile_result.stdout)
+                raise CompilationError(
+                    compile_result.stdout,
+                    compile_command,
+                    compile_result.returncode,
+                )
 
             run_result = _run_command(
                 [str(exe_path)],
@@ -88,7 +102,7 @@ class Engine:
             return run_result.stdout.strip()
         finally:
             # Clean up the temporary executable
-            Path(exe_path).unlink(missing_ok=True)
+            exe_path.unlink(missing_ok=True)
 
     def execute(self, file: Path, stdin: str) -> str:
         assert file.exists(), "The provided file does not exist."
@@ -110,5 +124,5 @@ available: dict[str, Engine] = {
 def execute(file: Path, stdin: str) -> str:
     if file.suffix not in available:
         return "Unsupported file type"
-    command = available[file.suffix]
-    return command.execute(file, stdin)
+    engine = available[file.suffix]
+    return engine.execute(file, stdin)
