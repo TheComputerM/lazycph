@@ -49,7 +49,7 @@ class LazyCPH(App):
     SUB_TITLE = "Competitive Programming Helper"
     BINDINGS = [
         Binding("ctrl+f", "choose_file", "select file"),
-        Binding("q", "app.quit", "close"),
+        Binding("q", "app.quit", "quit"),
     ]
 
     # base path of where to open the file explorer
@@ -112,18 +112,21 @@ class LazyCPH(App):
         import json
         from http.server import BaseHTTPRequestHandler, HTTPServer
 
-        def set_file(file: Path | None) -> None:
-            self.file = file
-
         app = self
+
+        def set_file(file: Path | None) -> None:
+            app.file = file
 
         class CompanionHandler(BaseHTTPRequestHandler):
             def do_POST(self):
                 content_length = int(self.headers.get("Content-Length", 0))
                 raw = self.rfile.read(content_length)
                 data = json.loads(raw)
+                # Open the companion screen whenever there is a POST request
                 app.call_from_thread(
-                    app.push_screen, CompanionScreen(data, app.base), set_file
+                    app.push_screen,
+                    CompanionScreen(data, app.base),
+                    set_file,
                 )
 
         httpd = HTTPServer(("localhost", get_port()), CompanionHandler)
