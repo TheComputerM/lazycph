@@ -34,3 +34,12 @@ We use taskipy for writing and running scripts.
 - `uv run task web`: Open the app on the web.
 - `uv run task test`: Run the test suite.
 - `uv run task build`: Build the app into a single binary using pyinstaller.
+
+### Releasing
+
+Make the version changes to pyproject.toml and lazycph/__init__.py
+
+```sh
+git tag v{VERSION}
+git push origin v{VERSION}
+```
