@@ -52,7 +52,10 @@ class LazyCPH(App):
         Binding("q", "app.quit", "close"),
     ]
 
+    # base path of where to open the file explorer
     base: Path
+
+    # selected file path
     file: reactive[Optional[Path]] = reactive(None, recompose=True, always_update=True)
 
     companion_mode: bool

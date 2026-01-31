@@ -23,6 +23,8 @@ class Status(Enum):
 class TestcaseItem(ListItem):
     DEFAULT_CSS = "TestcaseItem {padding: 1;}"
 
+    # These variables are reactive so they can be observed and updated by
+    # the Editor widget
     input: var[str] = var("")
     output: var[str] = var("")
     expected_output: var[str] = var("")
@@ -74,6 +76,9 @@ class TestcaseItem(ListItem):
             )
 
     def to_json(self) -> dict:
+        """
+        Converts the TestcaseItem to a JSON object that is able to be stored.
+        """
         return {
             "input": self.input,
             "expected_output": self.expected_output,
@@ -83,6 +88,9 @@ class TestcaseItem(ListItem):
 
     @staticmethod
     def from_json(data: dict) -> "TestcaseItem":
+        """
+        Creates a TestcaseItem from the given JSON data.
+        """
         testcase = TestcaseItem()
         testcase.set_reactive(TestcaseItem.input, data["input"])
         testcase.set_reactive(TestcaseItem.expected_output, data["expected_output"])

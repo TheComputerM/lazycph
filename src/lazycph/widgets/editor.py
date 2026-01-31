@@ -99,6 +99,7 @@ class Editor(Grid):
 
         save_data = workspace.read_save(file)
         if save_data is None:
+            # didn't find save file
             self.initial_testcases = [TestcaseItem()]
         else:
             self.initial_testcases = [
@@ -148,6 +149,7 @@ class Editor(Grid):
     async def handle_text_area_click(self, event: Click) -> None:
         assert isinstance(event.control, TextArea)
         if event.chain == 2:
+            # Select all text in the text area on double click
             await event.control.run_action("select_all")
 
     def action_run(self) -> None:
@@ -191,6 +193,7 @@ class Editor(Grid):
             self.query_one("#stdout", TextArea).text = item.output
             self.watch(item, "output", update_output)
 
+            # Save workspace state
             self.watch(item, "input", self.action_save_state)
             self.watch(item, "output", self.action_save_state)
             self.watch(item, "expected_output", self.action_save_state)
