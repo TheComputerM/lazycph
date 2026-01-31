@@ -2,8 +2,9 @@ from enum import Enum
 from pathlib import Path
 from subprocess import CalledProcessError, TimeoutExpired
 
-from textual import work
+from textual import on, work
 from textual.app import RenderResult
+from textual.message import Message
 from textual.reactive import reactive, var
 from textual.widgets import ListItem
 
@@ -21,6 +22,17 @@ class Status(Enum):
 
 
 class TestcaseItem(ListItem):
+    class StateChanged(Message):
+        """Message sent when the output and status of the testcase are updated."""
+
+        output: str
+        status: Status
+
+        def __init__(self, output: str, status: Status) -> None:
+            self.output = output
+            self.status = status
+            super().__init__()
+
     DEFAULT_CSS = "TestcaseItem {padding: 1;}"
 
     # These variables are reactive so they can be observed and updated by
@@ -46,33 +58,38 @@ class TestcaseItem(ListItem):
             output = f"{output} [{color}]({self.status.value})[/]"
         return output
 
-    def _is_expected_output_correct(self) -> bool:
-        """Compare the actual output with the expected output."""
-        return self.output.split() == self.expected_output.split()
+    @on(StateChanged)
+    def handle_update_output(self, update: StateChanged):
+        self.output = update.output
+        self.status = update.status
 
     @work(thread=True)
     def run(self, file: Path):
         """
         Runs the given testcase using the specified file and updates the output and status accordingly.
         """
-        self.output = "Running..."
+        self.post_message(self.StateChanged("Running...", Status.INITIAL))
         try:
-            self.output = execute(file, self.input)
+            output = execute(file, self.input)
+            status = (
+                Status.CORRECT
+                if output.split() == self.expected_output.split()
+                else Status.WRONG
+            )
+            self.post_message(self.StateChanged(output, status))
         except CompilationError as e:
-            self.output = str(e)
-            self.status = Status.COMPILATION_ERROR
+            self.post_message(self.StateChanged(str(e), Status.COMPILATION_ERROR))
         except TimeoutExpired:
-            self.output = "Time Limit Exceeded"
-            self.status = Status.TIME_LIMIT_EXCEEDED
+            self.post_message(
+                self.StateChanged("Time Limit Exceeded", Status.TIME_LIMIT_EXCEEDED)
+            )
         except CalledProcessError as e:
-            self.output = f"{e}\n{e.stderr}"
-            self.status = Status.RUNTIME_ERROR
+            self.post_message(
+                self.StateChanged(f"{e}\n{e.stderr}", Status.RUNTIME_ERROR)
+            )
         except Exception as e:
-            self.output = f"Unexpected Error: {e}"
-            self.status = Status.UNKNOWN_ERROR
-        else:
-            self.status = (
-                Status.CORRECT if self._is_expected_output_correct() else Status.WRONG
+            self.post_message(
+                self.StateChanged(f"Unexpected Error: {e}", Status.UNKNOWN_ERROR)
             )
 
     def to_json(self) -> dict:
