@@ -28,7 +28,7 @@ class TestPython:
             file.flush()
             with pytest.raises(subprocess.CalledProcessError) as exc_info:
                 execute(Path(file.name), "")
-            assert "ZeroDivisionError" in exc_info.value.stderr
+            assert "ZeroDivisionError" in exc_info.value.stdout
 
 
 class TestCPP:

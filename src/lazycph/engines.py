@@ -1,6 +1,33 @@
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import Literal
+
+COMPILE_TIMEOUT = 10.0
+EXECUTION_TIMEOUT = 5.0
+
+
+def _run_command(
+    cmd: str | list[str],
+    stdin: str,
+    timeout: float,
+    check: bool = True,
+    **kwargs,
+) -> subprocess.CompletedProcess[str]:
+    """
+    Run a subprocess with common options: text mode, check for errors,
+    and merge stderr into stdout. Additional kwargs are passed to subprocess.run.
+    """
+    return subprocess.run(
+        cmd,
+        check=check,
+        text=True,
+        input=stdin,
+        timeout=timeout,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        **kwargs,
+    )
 
 
 class CompilationError(Exception):
@@ -17,22 +44,20 @@ class CompilationError(Exception):
 
 class Engine:
     command: str
-    compiled: bool
+    mode: Literal["compile", "interpret"]
 
-    def __init__(self, command: str, compiled: bool) -> None:
+    def __init__(self, command: str, mode: Literal["compile", "interpret"]) -> None:
         self.command = command
-        self.compiled = compiled
+        self.mode = mode
 
     @staticmethod
     def execute_interpreted(file: Path, stdin: str, command: str) -> str:
-        result = subprocess.run(
+        result = _run_command(
             command.format(file=f'"{file.resolve()}"'),
+            stdin=stdin,
+            timeout=EXECUTION_TIMEOUT,
             shell=True,
-            check=True,
-            capture_output=True,
-            text=True,
-            input=stdin,
-            timeout=5.0,
+            cwd=file.parent,
         )
         return result.stdout.strip()
 
@@ -45,26 +70,22 @@ class Engine:
         exe_path = Path(tempfile.gettempdir()) / f"lazycph-{random_name}"
 
         try:
-            compile_result = subprocess.run(
+            compile_result = _run_command(
                 command.format(file=f'"{file.resolve()}"', temp=exe_path),
+                stdin="",
+                timeout=COMPILE_TIMEOUT,
                 shell=True,
-                text=True,
-                capture_output=True,
-                timeout=10.0,
+                check=False,
             )
 
             if compile_result.returncode != 0:
-                raise CompilationError(compile_result.stderr)
+                raise CompilationError(compile_result.stdout)
 
-            run_result = subprocess.run(
-                [exe_path],
-                check=True,
-                text=True,
-                input=stdin,
-                timeout=5.0,
+            run_result = _run_command(
+                [str(exe_path)],
+                stdin=stdin,
+                timeout=EXECUTION_TIMEOUT,
                 cwd=file.parent,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
             )
 
             return run_result.stdout.strip()
@@ -73,19 +94,19 @@ class Engine:
             Path(exe_path).unlink(missing_ok=True)
 
     def execute(self, file: Path, stdin: str) -> str:
-        assert file.is_file(), "The provided path is not a file."
         assert file.exists(), "The provided file does not exist."
-        if self.compiled:
+        assert file.is_file(), "The provided path is not a file."
+        if self.mode == "compile":
             return self.execute_compiled(file, stdin, self.command)
         return self.execute_interpreted(file, stdin, self.command)
 
 
 available: dict[str, Engine] = {
-    ".py": Engine("python3 {file}", compiled=False),
-    ".cpp": Engine("g++ {file} -o {temp} -std=c++17", compiled=True),
-    ".c": Engine("g++ {file} -o {temp} -std=gnu23", compiled=True),
-    ".rs": Engine("rustc {file} -o {temp}", compiled=True),
-    ".zig": Engine("zig build-exe {file} -femit-bin={temp}", compiled=True),
+    ".py": Engine("python3 {file}", mode="interpret"),
+    ".cpp": Engine("g++ {file} -o {temp} -std=c++17", mode="compile"),
+    ".c": Engine("gcc {file} -o {temp} -std=gnu23", mode="compile"),
+    ".rs": Engine("rustc {file} -o {temp}", mode="compile"),
+    ".zig": Engine("zig build-exe {file} -femit-bin={temp}", mode="compile"),
 }
 
 
