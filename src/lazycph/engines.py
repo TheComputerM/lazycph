@@ -1,10 +1,10 @@
 import subprocess
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-COMPILE_TIMEOUT = 10.0
-EXECUTION_TIMEOUT = 5.0
+
 
 
 def _run_command(
@@ -42,27 +42,24 @@ class CompilationError(Exception):
         super().__init__(f"CompilationError:\n{stderr}")
 
 
+@dataclass
 class Engine:
     command: str
     mode: Literal["compile", "interpret"]
+    compile_timeout: float = 10.0
+    execution_timeout: float = 5.0
 
-    def __init__(self, command: str, mode: Literal["compile", "interpret"]) -> None:
-        self.command = command
-        self.mode = mode
-
-    @staticmethod
-    def execute_interpreted(file: Path, stdin: str, command: str) -> str:
+    def _interpret(self, file: Path, stdin: str) -> str:
         result = _run_command(
-            command.format(file=f'"{file.resolve()}"'),
+            self.command.format(file=f'"{file.resolve()}"'),
             stdin=stdin,
-            timeout=EXECUTION_TIMEOUT,
+            timeout=self.execution_timeout,
             shell=True,
             cwd=file.parent,
         )
         return result.stdout.strip()
 
-    @staticmethod
-    def execute_compiled(file: Path, stdin: str, command: str) -> str:
+    def _compile(self, file: Path, stdin: str) -> str:
         from random import choices
         from string import ascii_letters
 
@@ -71,9 +68,9 @@ class Engine:
 
         try:
             compile_result = _run_command(
-                command.format(file=f'"{file.resolve()}"', temp=exe_path),
+                self.command.format(file=f'"{file.resolve()}"', temp=exe_path),
                 stdin="",
-                timeout=COMPILE_TIMEOUT,
+                timeout=self.compile_timeout,
                 shell=True,
                 check=False,
             )
@@ -84,7 +81,7 @@ class Engine:
             run_result = _run_command(
                 [str(exe_path)],
                 stdin=stdin,
-                timeout=EXECUTION_TIMEOUT,
+                timeout=self.execution_timeout,
                 cwd=file.parent,
             )
 
@@ -97,8 +94,8 @@ class Engine:
         assert file.exists(), "The provided file does not exist."
         assert file.is_file(), "The provided path is not a file."
         if self.mode == "compile":
-            return self.execute_compiled(file, stdin, self.command)
-        return self.execute_interpreted(file, stdin, self.command)
+            return self._compile(file, stdin)
+        return self._interpret(file, stdin)
 
 
 available: dict[str, Engine] = {
