@@ -52,14 +52,17 @@ class TestcaseItem(ListItem):
     def render(self) -> RenderResult:
         output = f"Testcase {self.index}"
         if self.status is not Status.INITIAL:
-            color = "$text-success"
-            if self.status is not Status.CORRECT:
+            if self.status is Status.CORRECT:
+                color = "$text-success"
+            elif self.status is Status.WRONG:
                 color = "$text-error"
-            output = f"{output} [{color}]({self.status.value})[/]"
+            else:
+                color = "$text-warning"
+            output += f" [{color}]({self.status.value})[/]"
         return output
 
     @on(StateChanged)
-    def handle_update_output(self, update: StateChanged):
+    def handle_state_changed(self, update: StateChanged):
         self.output = update.output
         self.status = update.status
 
