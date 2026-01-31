@@ -99,7 +99,7 @@ class LazyCPH(App):
         self.push_screen(FilePicker(self.base), set_file)
 
     def on_load(self) -> None:
-        self.theme = "tokyo-night"
+        self.theme = "flexoki"
 
     def on_mount(self) -> None:
         if self.companion_mode:
