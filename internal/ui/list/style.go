@@ -34,7 +34,7 @@ func DefaultStyles(isDark bool) Styles {
 		List:  lipgloss.NewStyle().Width(width).Margin(0, 1),
 		Title: lipgloss.NewStyle().Italic(true).MarginBottom(1).Padding(0, 1).Background(accent),
 
-		Item: lipgloss.NewStyle().PaddingLeft(2),
+		Item: lipgloss.NewStyle().PaddingLeft(2).Width(width),
 
 		Focused: StyleState{
 			SelectedItem: selectedItemStyle.BorderForeground(accent),
@@ -68,4 +68,12 @@ func (s *Styles) getTitleStyle(status core.TestCaseStatus) lipgloss.Style {
 	default:
 		return s.PendingItemTitle
 	}
+}
+
+func (m *Model) SetHeight(height int) {
+	m.height = height
+}
+
+func (m *Model) SetStyles(styles Styles) {
+	m.styles = styles
 }

@@ -19,6 +19,7 @@ func (m *Model) updateLayout() {
 
 	// testcase list
 	availWidth -= m.TestCaseList.GetWidth()
+	m.TestCaseList.SetHeight(availHeight)
 
 	// editor
 	editorHeight := availHeight / 2

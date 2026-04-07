@@ -6,6 +6,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 
+	zone "github.com/lrstanley/bubblezone/v2"
 	"github.com/thecomputerm/lazycph/internal/core"
 	"github.com/thecomputerm/lazycph/internal/ui/list"
 	"github.com/thecomputerm/lazycph/internal/ui/output"
@@ -50,6 +51,8 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
+	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.BackgroundColorMsg:
@@ -70,10 +73,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.SetSize(msg.Width, msg.Height)
 		return m, nil
+	case tea.MouseReleaseMsg:
+		if msg.Button == tea.MouseLeft {
+			if zone.Get("section-list").InBounds(msg) {
+				cmds = append(cmds, m.focusOn(0))
+			} else if zone.Get("section-input").InBounds(msg) {
+				cmds = append(cmds, m.focusOn(1))
+			} else if zone.Get("section-expected").InBounds(msg) {
+				cmds = append(cmds, m.focusOn(2))
+			} else if zone.Get("section-output").InBounds(msg) {
+				cmds = append(cmds, m.focusOn(3))
+			}
+		}
 	}
-
-	var cmds []tea.Cmd
-	var cmd tea.Cmd
 
 	m.TestCaseList, cmd = m.TestCaseList.Update(msg)
 	cmds = append(cmds, cmd)
@@ -95,17 +107,21 @@ func (m Model) View() tea.View {
 		lipgloss.Left,
 		lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			m.TestCaseList.View(),
+			zone.Mark("section-list", m.TestCaseList.View()),
 			lipgloss.JoinVertical(
 				lipgloss.Left,
-				lipgloss.JoinHorizontal(lipgloss.Top, m.Input.View(), m.Expected.View()),
-				m.Output.View(),
+				lipgloss.JoinHorizontal(
+					lipgloss.Top,
+					zone.Mark("section-input", m.Input.View()),
+					zone.Mark("section-expected", m.Expected.View()),
+				),
+				zone.Mark("section-output", m.Output.View()),
 			),
 		),
 		m.HelpView(),
 	)
 
-	v := tea.NewView(content)
+	v := tea.NewView(zone.Scan(content))
 
 	v.AltScreen = true
 	v.WindowTitle = "LazyCPH"

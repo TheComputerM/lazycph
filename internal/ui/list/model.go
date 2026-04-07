@@ -2,10 +2,12 @@ package list
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
+	zone "github.com/lrstanley/bubblezone/v2"
 	"github.com/thecomputerm/lazycph/internal/core"
 )
 
@@ -16,6 +18,7 @@ type Model struct {
 
 	index   int
 	focused bool
+	height  int
 }
 
 func New(testCases []core.TestCase) Model {
@@ -27,11 +30,12 @@ func New(testCases []core.TestCase) Model {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	if !m.focused {
+		return m, nil
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		if !m.focused {
-			return m, nil
-		}
 		switch {
 		case key.Matches(msg, m.keyMap.Up):
 			m.index = max(m.index-1, 0)
@@ -41,7 +45,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			core.CreateTestCase(&m.items)
 			m.index = len(m.items) - 1
 		}
+	case tea.MouseReleaseMsg:
+		if msg.Button == tea.MouseLeft {
+			for i, _ := range m.items {
+				if zone.Get("listitem-" + strconv.Itoa(i)).InBounds(msg) {
+					m.index = i
+					break
+				}
+			}
+		}
 	}
+
 	return m, nil
 }
 
@@ -56,32 +70,31 @@ func (m Model) View() string {
 		state = m.styles.Focused
 	}
 
-	for i, item := range m.items {
+	for i, testCase := range m.items {
 		if i > 0 {
 			sb.WriteString("\n\n")
 		}
 
 		content := fmt.Sprintf(
 			"%s\n%s",
-			m.styles.getTitleStyle(item.Status).Bold(i == m.index).Render(string(item.Status)),
-			state.ItemDesc.Faint(i != m.index).Render(item.Details),
+			m.styles.getTitleStyle(testCase.Status).Bold(i == m.index).Render(string(testCase.Status)),
+			state.ItemDesc.Faint(i != m.index).Render(testCase.Details),
 		)
+
+		var item string
 
 		if i != m.index {
 			// normal item
-			sb.WriteString(m.styles.Item.Render(content))
+			item = m.styles.Item.Render(content)
 		} else {
 			// selected item
-			sb.WriteString(state.SelectedItem.Render(content))
+			item = state.SelectedItem.Render(content)
 		}
 
+		sb.WriteString(zone.Mark("listitem-"+strconv.Itoa(i), item))
 	}
 
-	return m.styles.List.Render(sb.String())
-}
-
-func (m *Model) SetStyles(styles Styles) {
-	m.styles = styles
+	return m.styles.List.Height(m.height).Render(sb.String())
 }
 
 func (m *Model) Focus() tea.Cmd {
