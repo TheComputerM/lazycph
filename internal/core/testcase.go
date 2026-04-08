@@ -19,26 +19,11 @@ type TestCase struct {
 }
 
 func GetTestCases() ([]TestCase, error) {
+	// mock data
 	return []TestCase{
 		{TestCaseStatusCorrect, "200ms", "STDIN:1", "EXPECTED:1", "STDOUT:1"},
 		{TestCaseStatusPending, "Queued", "STDIN:pending", "EXPECTED:pending", "STDOUT:"},
 		{TestCaseStatusError, "Compilation Error", "STDIN:2", "EXPECTED:2", "STDOUT:2"},
 		{TestCaseStatusWrong, "300ms", "STDIN:3", "EXPECTED:3", "STDOUT:3"},
 	}, nil
-}
-
-func CreateTestCase(list *[]TestCase) {
-	*list = append(*list, TestCase{
-		Status:   TestCaseStatusPending,
-		Details:  "Idle",
-		Input:    "",
-		Expected: "",
-		Output:   "",
-	})
-}
-
-func RunTestCase(testCase *TestCase) {
-	testCase.Status = TestCaseStatusCorrect
-	testCase.Details = "300ms"
-	testCase.Output = "Some text"
 }

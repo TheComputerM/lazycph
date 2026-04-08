@@ -30,7 +30,7 @@ var _ tea.Model = (*Model)(nil)
 
 func New() Model {
 	testCases, _ := core.GetTestCases()
-	testCaseList := list.New(testCases)
+	testCaseList := list.New(&testCases)
 
 	model := Model{
 		TestCaseList: testCaseList,
@@ -48,7 +48,7 @@ func New() Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(tea.RequestBackgroundColor, textarea.Blink)
+	return tea.Batch(tea.RequestBackgroundColor, textarea.Blink, m.TestCaseList.SelectTestCase(0))
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -56,11 +56,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.BackgroundColorMsg:
-		m.setTheme(msg.IsDark())
+		// set app theme
+		isDark := msg.IsDark()
+		m.TestCaseList.SetStyles(list.DefaultStyles(isDark))
+		m.Input.SetStyles(textarea.DefaultStyles(isDark))
+		m.Expected.SetStyles(textarea.DefaultStyles(isDark))
+		m.Output.SetStyles(output.DefaultStyles(isDark))
 		return m, nil
 	case tea.WindowSizeMsg:
+		// set window size
 		m.SetSize(msg.Width, msg.Height)
 		return m, nil
+	case list.TestCaseSelectedMsg:
+		m.Input.SetValue(msg.TestCase.Input)
+		m.Expected.SetValue(msg.TestCase.Expected)
+		m.Output.SetContent(msg.TestCase.Output)
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.Quit):
@@ -118,11 +128,4 @@ func (m Model) View() tea.View {
 	v.MouseMode = tea.MouseModeCellMotion
 
 	return v
-}
-
-func (m *Model) setTheme(isDark bool) {
-	m.TestCaseList.SetStyles(list.DefaultStyles(isDark))
-	m.Input.SetStyles(textarea.DefaultStyles(isDark))
-	m.Expected.SetStyles(textarea.DefaultStyles(isDark))
-	m.Output.SetStyles(output.DefaultStyles(isDark))
 }

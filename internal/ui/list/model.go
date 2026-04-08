@@ -12,7 +12,7 @@ import (
 )
 
 type Model struct {
-	items  []core.TestCase
+	items  *[]core.TestCase
 	keyMap KeyMap
 	styles Styles
 
@@ -21,7 +21,12 @@ type Model struct {
 	height  int
 }
 
-func New(testCases []core.TestCase) Model {
+type TestCaseSelectedMsg struct {
+	Index    int
+	TestCase core.TestCase
+}
+
+func New(testCases *[]core.TestCase) Model {
 	return Model{
 		items:  testCases,
 		keyMap: DefaultKeyMap(),
@@ -38,25 +43,28 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.Up):
-			m.index = max(m.index-1, 0)
+			return m.SelectTestCase(max(m.index-1, 0))
 		case key.Matches(msg, m.keyMap.Down):
-			m.index = min(m.index+1, len(m.items)-1)
-		case key.Matches(msg, m.keyMap.Create):
-			core.CreateTestCase(&m.items)
-			m.index = len(m.items) - 1
+			return m.SelectTestCase(min(m.index+1, len(*m.items)-1))
 		}
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {
-			for i, _ := range m.items {
+			for i, _ := range *m.items {
 				if zone.Get("listitem-" + strconv.Itoa(i)).InBounds(msg) {
-					m.index = i
-					break
+					return m.SelectTestCase(i)
 				}
 			}
 		}
 	}
 
 	return nil
+}
+
+func (m *Model) SelectTestCase(index int) tea.Cmd {
+	m.index = index
+	return func() tea.Msg {
+		return TestCaseSelectedMsg{Index: index, TestCase: (*m.items)[index]}
+	}
 }
 
 func (m Model) View() string {
@@ -70,7 +78,7 @@ func (m Model) View() string {
 		state = m.styles.Focused
 	}
 
-	for i, testCase := range m.items {
+	for i, testCase := range *m.items {
 		if i > 0 {
 			sb.WriteString("\n\n")
 		}
