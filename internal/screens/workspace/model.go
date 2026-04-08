@@ -26,8 +26,6 @@ type Model struct {
 	width, height int
 }
 
-var _ tea.Model = (*Model)(nil)
-
 func New() Model {
 	testCases, _ := core.GetTestCases()
 	testCaseList := list.New(&testCases)
@@ -51,7 +49,7 @@ func (m Model) Init() tea.Cmd {
 	return tea.Batch(tea.RequestBackgroundColor, textarea.Blink, m.TestCaseList.SelectTestCase(0))
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
@@ -106,8 +104,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m Model) View() tea.View {
-
+func (m Model) View() string {
 	help := m.HelpView()
 
 	credit := lipgloss.NewStyle().Italic(true).Hyperlink("https://thecomputerm.dev").Render("by TheComputerM")
@@ -134,11 +131,5 @@ func (m Model) View() tea.View {
 		),
 	)
 
-	v := tea.NewView(zone.Scan(content))
-
-	v.AltScreen = true
-	v.WindowTitle = "LazyCPH"
-	v.MouseMode = tea.MouseModeCellMotion
-
-	return v
+	return zone.Scan(content)
 }
