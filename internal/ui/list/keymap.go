@@ -23,12 +23,12 @@ func DefaultKeyMap() KeyMap {
 			key.WithHelp("↓/j", "move down"),
 		),
 		Create: key.NewBinding(
-			key.WithKeys("+"),
-			key.WithHelp("+", "create"),
+			key.WithKeys("+", "c"),
+			key.WithHelp("+/c", "create"),
 		),
 		Delete: key.NewBinding(
-			key.WithKeys("-"),
-			key.WithHelp("-", "delete"),
+			key.WithKeys("-", "d"),
+			key.WithHelp("-/d", "delete"),
 		),
 	}
 }
