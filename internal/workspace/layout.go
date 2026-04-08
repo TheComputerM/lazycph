@@ -4,12 +4,6 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-func (m *Model) SetSize(width, height int) {
-	m.width = width
-	m.height = height
-	m.updateLayout()
-}
-
 func (m *Model) updateLayout() {
 	availWidth, availHeight := m.width, m.height
 

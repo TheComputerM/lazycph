@@ -65,7 +65,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case tea.WindowSizeMsg:
 		// set window size
-		m.SetSize(msg.Width, msg.Height)
+		m.width = msg.Width
+		m.height = msg.Height
+		m.updateLayout()
 		return m, nil
 	case list.TestCaseSelectedMsg:
 		// new testcase selected
@@ -82,6 +84,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.focusPrev()
 		case key.Matches(msg, m.keyMap.Help):
 			m.Help.ShowAll = !m.Help.ShowAll
+			// help height is dynamic
 			m.updateLayout()
 		}
 	case tea.MouseReleaseMsg:
@@ -104,6 +107,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() tea.View {
+
+	help := m.HelpView()
+
+	credit := lipgloss.NewStyle().Italic(true).Hyperlink("https://thecomputerm.dev").Render("by TheComputerM")
+
 	content := lipgloss.JoinVertical(
 		lipgloss.Left,
 		lipgloss.JoinHorizontal(
@@ -119,7 +127,11 @@ func (m Model) View() tea.View {
 				zone.Mark("section-output", m.Output.View()),
 			),
 		),
-		m.HelpView(),
+		lipgloss.JoinHorizontal(
+			lipgloss.Center,
+			help,
+			lipgloss.PlaceHorizontal(m.width-lipgloss.Width(help), lipgloss.Right, credit),
+		),
 	)
 
 	v := tea.NewView(zone.Scan(content))
