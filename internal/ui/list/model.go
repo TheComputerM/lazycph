@@ -42,6 +42,17 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 			return m.SelectTestCase(max(m.index-1, 0))
 		case key.Matches(msg, m.keyMap.Down):
 			return m.SelectTestCase(min(m.index+1, len(*m.items)-1))
+		case key.Matches(msg, m.keyMap.Create):
+			m.items.Create()
+			m.keyMap.Delete.SetEnabled(true)
+			return m.SelectTestCase(len(*m.items) - 1)
+		case key.Matches(msg, m.keyMap.Delete):
+			m.items.Delete(m.index)
+			if len((*m.items)) == 1 {
+				// Disable delete key when only one test case remains
+				m.keyMap.Delete.SetEnabled(false)
+			}
+			return m.SelectTestCase(max(m.index-1, 0))
 		}
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {

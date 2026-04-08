@@ -1,10 +1,12 @@
 package core
 
+import "slices"
+
 type TestCaseStatus string
 
 const (
-	TestCaseStatusCorrect TestCaseStatus = "Correct"
 	TestCaseStatusPending TestCaseStatus = "Pending"
+	TestCaseStatusCorrect TestCaseStatus = "Correct"
 	TestCaseStatusWrong   TestCaseStatus = "Wrong"
 	TestCaseStatusError   TestCaseStatus = "Error"
 )
@@ -28,4 +30,15 @@ func GetTestCases() (TestCaseList, error) {
 		{TestCaseStatusError, "Compilation Error", "STDIN:2", "EXPECTED:2", "STDOUT:2"},
 		{TestCaseStatusWrong, "300ms", "STDIN:3", "EXPECTED:3", "STDOUT:3"},
 	}, nil
+}
+
+func (list *TestCaseList) Create() {
+	*list = append(*list, &TestCase{
+		Status:  TestCaseStatusPending,
+		Details: "Idle",
+	})
+}
+
+func (list *TestCaseList) Delete(index int) {
+	*list = slices.Delete(*list, index, index+1)
 }
