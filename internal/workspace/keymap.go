@@ -24,7 +24,7 @@ func DefaultKeyMap() KeyMap {
 
 func (m *Model) ShortHelp() []key.Binding {
 	global := []key.Binding{m.keyMap.Run, m.keyMap.Help, m.keyMap.Quit}
-	focused := m.getFocusable(m.focused).ShortHelp()
+	focused := m.currentlyFocused().ShortHelp()
 	return append(focused, global...)
 }
 
@@ -34,7 +34,7 @@ func (m *Model) FullHelp() [][]key.Binding {
 		{m.keyMap.Next, m.keyMap.Prev},
 		{m.keyMap.Help, m.keyMap.Quit},
 	}
-	focused := m.getFocusable(m.focused).FullHelp()
+	focused := m.currentlyFocused().FullHelp()
 	return append(focused, global...)
 }
 

@@ -29,9 +29,9 @@ func New(testCases []core.TestCase) Model {
 	}
 }
 
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	if !m.focused {
-		return m, nil
+		return nil
 	}
 
 	switch msg := msg.(type) {
@@ -56,14 +56,14 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		}
 	}
 
-	return m, nil
+	return nil
 }
 
 func (m Model) View() string {
 	var sb strings.Builder
 
-	sb.WriteString(m.styles.Title.Render("TITLE"))
-	sb.WriteByte('\n')
+	sb.WriteString(m.styles.Title.Render("main.c"))
+	sb.WriteString("\n\n")
 
 	var state StyleState = m.styles.Blurred
 	if m.focused {

@@ -28,11 +28,14 @@ func DefaultStyles(isDark bool) Styles {
 	width := 25
 	accent := lipgloss.Color("63")
 
-	selectedItemStyle := lipgloss.NewStyle().PaddingLeft(1).Border(lipgloss.ThickBorder(), false, false, false, true)
+	selectedItemStyle := lipgloss.NewStyle().
+		PaddingLeft(1).
+		Width(width).
+		Border(lipgloss.ThickBorder(), false, false, false, true)
 
 	return Styles{
 		List:  lipgloss.NewStyle().Width(width).Margin(0, 1),
-		Title: lipgloss.NewStyle().Italic(true).MarginBottom(1).Padding(0, 1).Background(accent),
+		Title: lipgloss.NewStyle().Padding(0, 1).Background(accent),
 
 		Item: lipgloss.NewStyle().PaddingLeft(2).Width(width),
 

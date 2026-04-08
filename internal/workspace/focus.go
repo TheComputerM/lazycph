@@ -9,9 +9,10 @@ type focusable interface {
 	help.KeyMap
 	Focus() tea.Cmd
 	Blur()
+	Update(msg tea.Msg) tea.Cmd
 }
 
-func (m *Model) getFocusable(index uint) focusable {
+func (m *Model) focusableAt(index uint) focusable {
 	switch index {
 	case 0:
 		return &m.TestCaseList
@@ -25,6 +26,10 @@ func (m *Model) getFocusable(index uint) focusable {
 	return nil
 }
 
+func (m *Model) currentlyFocused() focusable {
+	return m.focusableAt(m.focused)
+}
+
 func (m *Model) focusNext() tea.Cmd {
 	return m.focusOn((m.focused + 1) % 4)
 }
@@ -34,10 +39,10 @@ func (m *Model) focusPrev() tea.Cmd {
 }
 
 func (m *Model) focusOn(index uint) tea.Cmd {
-	prev := m.getFocusable(m.focused)
+	prev := m.focusableAt(m.focused)
 	prev.Blur()
 
 	m.focused = index
-	current := m.getFocusable(index)
+	current := m.focusableAt(m.focused)
 	return current.Focus()
 }

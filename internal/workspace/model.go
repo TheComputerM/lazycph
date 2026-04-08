@@ -38,7 +38,8 @@ func New() Model {
 		Expected:     textarea.New("Expected Output"),
 		Output:       output.New(),
 		Help:         help.New(),
-		keyMap:       DefaultKeyMap(),
+
+		keyMap: DefaultKeyMap(),
 	}
 
 	model.focusOn(0)
@@ -52,11 +53,13 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
-	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.BackgroundColorMsg:
 		m.setTheme(msg.IsDark())
+		return m, nil
+	case tea.WindowSizeMsg:
+		m.SetSize(msg.Width, msg.Height)
 		return m, nil
 	case tea.KeyPressMsg:
 		switch {
@@ -70,9 +73,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Help.ShowAll = !m.Help.ShowAll
 			m.updateLayout()
 		}
-	case tea.WindowSizeMsg:
-		m.SetSize(msg.Width, msg.Height)
-		return m, nil
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {
 			if zone.Get("section-list").InBounds(msg) {
@@ -87,17 +87,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	m.TestCaseList, cmd = m.TestCaseList.Update(msg)
-	cmds = append(cmds, cmd)
-
-	m.Input, cmd = m.Input.Update(msg)
-	cmds = append(cmds, cmd)
-
-	m.Expected, cmd = m.Expected.Update(msg)
-	cmds = append(cmds, cmd)
-
-	m.Output, cmd = m.Output.Update(msg)
-	cmds = append(cmds, cmd)
+	cmds = append(cmds, m.currentlyFocused().Update(msg))
 
 	return m, tea.Batch(cmds...)
 }

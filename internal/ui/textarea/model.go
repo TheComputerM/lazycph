@@ -24,10 +24,10 @@ func New(placeholder string) Model {
 	}
 }
 
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	model, cmd := m.Model.Update(msg)
 	m.Model = &model
-	return m, cmd
+	return cmd
 }
 
 func Blink() tea.Msg {

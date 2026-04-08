@@ -30,13 +30,13 @@ func New() Model {
 	}
 }
 
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	if !m.focused {
-		return m, nil
+		return nil
 	}
 	model, cmd := m.Model.Update(msg)
 	m.Model = &model
-	return m, cmd
+	return cmd
 }
 
 func (m Model) View() string {
