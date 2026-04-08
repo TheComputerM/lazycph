@@ -68,8 +68,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.SetSize(msg.Width, msg.Height)
 		return m, nil
 	case list.TestCaseSelectedMsg:
-		m.Input.SetValue(msg.TestCase.Input)
-		m.Expected.SetValue(msg.TestCase.Expected)
+		// new testcase selected
+		m.Input.BindValue(&msg.TestCase.Input)
+		m.Expected.BindValue(&msg.TestCase.Expected)
 		m.Output.SetContent(msg.TestCase.Output)
 	case tea.KeyPressMsg:
 		switch {

@@ -18,9 +18,11 @@ type TestCase struct {
 	Output   string `json:"output"`
 }
 
-func GetTestCases() ([]TestCase, error) {
+type TestCaseList []*TestCase
+
+func GetTestCases() (TestCaseList, error) {
 	// mock data
-	return []TestCase{
+	return TestCaseList{
 		{TestCaseStatusCorrect, "200ms", "STDIN:1", "EXPECTED:1", "STDOUT:1"},
 		{TestCaseStatusPending, "Queued", "STDIN:pending", "EXPECTED:pending", "STDOUT:"},
 		{TestCaseStatusError, "Compilation Error", "STDIN:2", "EXPECTED:2", "STDOUT:2"},

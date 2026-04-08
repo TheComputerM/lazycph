@@ -12,21 +12,17 @@ import (
 )
 
 type Model struct {
-	items  *[]core.TestCase
+	items  *core.TestCaseList
 	keyMap KeyMap
 	styles Styles
 
+	// index of the currently selected test case
 	index   int
 	focused bool
 	height  int
 }
 
-type TestCaseSelectedMsg struct {
-	Index    int
-	TestCase core.TestCase
-}
-
-func New(testCases *[]core.TestCase) Model {
+func New(testCases *core.TestCaseList) Model {
 	return Model{
 		items:  testCases,
 		keyMap: DefaultKeyMap(),
@@ -60,10 +56,21 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
+// Returns the currently selected test case
+func (m *Model) Selected() *core.TestCase {
+	return (*m.items)[m.index]
+}
+
+type TestCaseSelectedMsg struct {
+	Index    int
+	TestCase *core.TestCase
+}
+
+// Selects the test case at the given index and returns a TestCaseSelectedMsg
 func (m *Model) SelectTestCase(index int) tea.Cmd {
 	m.index = index
 	return func() tea.Msg {
-		return TestCaseSelectedMsg{Index: index, TestCase: (*m.items)[index]}
+		return TestCaseSelectedMsg{Index: index, TestCase: m.Selected()}
 	}
 }
 

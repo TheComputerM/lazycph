@@ -9,6 +9,7 @@ type Model struct {
 	*textarea.Model
 
 	keyMap KeyMap
+	value  *string
 }
 
 func New(placeholder string) Model {
@@ -25,9 +26,22 @@ func New(placeholder string) Model {
 }
 
 func (m *Model) Update(msg tea.Msg) tea.Cmd {
+	previousValue := m.Value()
+
 	model, cmd := m.Model.Update(msg)
 	m.Model = &model
+
+	// TODO: need better way to track value changes
+	if previousValue != m.Value() && m.value != nil {
+		*m.value = m.Value()
+	}
+
 	return cmd
+}
+
+func (m *Model) BindValue(value *string) {
+	m.value = value
+	m.SetValue(*value)
 }
 
 func Blink() tea.Msg {
