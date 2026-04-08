@@ -26,14 +26,15 @@ func New(placeholder string) Model {
 }
 
 func (m *Model) Update(msg tea.Msg) tea.Cmd {
-	previousValue := m.Value()
-
 	model, cmd := m.Model.Update(msg)
 	m.Model = &model
 
-	// TODO: need better way to track value changes
-	if previousValue != m.Value() && m.value != nil {
-		*m.value = m.Value()
+	switch msg.(type) {
+	case tea.KeyPressMsg:
+		content := m.Value()
+		if m.value != nil && content != *m.value {
+			*m.value = content
+		}
 	}
 
 	return cmd
