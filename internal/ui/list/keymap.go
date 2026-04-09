@@ -40,5 +40,5 @@ func (m *Model) ShortHelp() []key.Binding {
 }
 
 func (m *Model) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{m.keyMap.Up, m.keyMap.Down}, {m.keyMap.Create, m.keyMap.Delete}}
+	return [][]key.Binding{{m.keyMap.Create, m.keyMap.Delete}, {m.keyMap.Up, m.keyMap.Down}}
 }

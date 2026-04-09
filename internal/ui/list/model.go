@@ -12,7 +12,9 @@ import (
 )
 
 type Model struct {
-	items  *core.TestCaseList
+	Title string
+
+	items  core.TestCaseList
 	keyMap KeyMap
 	styles Styles
 
@@ -22,9 +24,10 @@ type Model struct {
 	height  int
 }
 
-func New(testCases *core.TestCaseList) Model {
+func New() Model {
 	return Model{
-		items:  testCases,
+		Title: "Select File",
+
 		keyMap: DefaultKeyMap(),
 		styles: DefaultStyles(true),
 	}
@@ -41,14 +44,14 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msg, m.keyMap.Up):
 			return m.SelectTestCase(max(m.index-1, 0))
 		case key.Matches(msg, m.keyMap.Down):
-			return m.SelectTestCase(min(m.index+1, len(*m.items)-1))
+			return m.SelectTestCase(min(m.index+1, len(m.items)-1))
 		case key.Matches(msg, m.keyMap.Create):
 			m.items.Create()
 			m.keyMap.Delete.SetEnabled(true)
-			return m.SelectTestCase(len(*m.items) - 1)
+			return m.SelectTestCase(len(m.items) - 1)
 		case key.Matches(msg, m.keyMap.Delete):
 			m.items.Delete(m.index)
-			if len((*m.items)) == 1 {
+			if len(m.items) == 1 {
 				// Disable delete key when only one test case remains
 				m.keyMap.Delete.SetEnabled(false)
 			}
@@ -56,7 +59,7 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 		}
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {
-			for i, _ := range *m.items {
+			for i, _ := range m.items {
 				if zone.Get("listitem-" + strconv.Itoa(i)).InBounds(msg) {
 					return m.SelectTestCase(i)
 				}
@@ -69,7 +72,7 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 
 // Returns the currently selected test case
 func (m *Model) Selected() *core.TestCase {
-	return (*m.items)[m.index]
+	return m.items[m.index]
 }
 
 type TestCaseSelectedMsg struct {
@@ -79,6 +82,10 @@ type TestCaseSelectedMsg struct {
 
 // Selects the test case at the given index and returns a TestCaseSelectedMsg
 func (m *Model) SelectTestCase(index int) tea.Cmd {
+	if !(index >= 0 && index < len(m.items)) {
+		return nil
+	}
+
 	m.index = index
 	return func() tea.Msg {
 		return TestCaseSelectedMsg{Index: index, TestCase: m.Selected()}
@@ -88,7 +95,7 @@ func (m *Model) SelectTestCase(index int) tea.Cmd {
 func (m Model) View() string {
 	var sb strings.Builder
 
-	sb.WriteString(m.styles.Title.Render("main.c"))
+	sb.WriteString(m.styles.Title.Render(m.Title))
 	sb.WriteString("\n\n")
 
 	var state StyleState = m.styles.Blurred
@@ -96,14 +103,14 @@ func (m Model) View() string {
 		state = m.styles.Focused
 	}
 
-	for i, testCase := range *m.items {
+	for i, testCase := range m.items {
 		if i > 0 {
 			sb.WriteString("\n\n")
 		}
 
 		content := fmt.Sprintf(
 			"%s\n%s",
-			m.styles.getTitleStyle(testCase.Status).Bold(i == m.index).Render(string(testCase.Status)),
+			m.styles.itemTitleStyle(testCase.Status).Bold(i == m.index).Render(string(testCase.Status)),
 			state.ItemDesc.Faint(i != m.index).Render(testCase.Details),
 		)
 

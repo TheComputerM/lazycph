@@ -35,7 +35,7 @@ func DefaultStyles(isDark bool) Styles {
 
 	return Styles{
 		List:  lipgloss.NewStyle().Width(width).Margin(0, 1),
-		Title: lipgloss.NewStyle().Padding(0, 1).Background(accent),
+		Title: lipgloss.NewStyle().MaxWidth(width).Padding(0, 1).Background(accent),
 
 		Item: lipgloss.NewStyle().PaddingLeft(2).Width(width),
 
@@ -60,7 +60,7 @@ func (m *Model) GetWidth() int {
 	return 25 + m.styles.List.GetHorizontalFrameSize()
 }
 
-func (s *Styles) getTitleStyle(status core.TestCaseStatus) lipgloss.Style {
+func (s *Styles) itemTitleStyle(status core.TestCaseStatus) lipgloss.Style {
 	switch status {
 	case core.TestCaseStatusCorrect:
 		return s.CorrectItemTitle

@@ -9,7 +9,7 @@ func (m *Model) updateLayout() {
 
 	// help
 	m.Help.SetWidth(availWidth)
-	availHeight -= lipgloss.Height(m.HelpView())
+	availHeight -= lipgloss.Height(m.helpView())
 
 	// testcase list
 	availWidth -= m.TestCaseList.GetWidth()

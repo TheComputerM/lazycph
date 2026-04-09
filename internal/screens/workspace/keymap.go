@@ -38,6 +38,6 @@ func (m *Model) FullHelp() [][]key.Binding {
 	return append(focused, global...)
 }
 
-func (m *Model) HelpView() string {
+func (m *Model) helpView() string {
 	return m.Help.View(m)
 }

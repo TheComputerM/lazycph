@@ -7,7 +7,6 @@ import (
 	"charm.land/lipgloss/v2"
 
 	zone "github.com/lrstanley/bubblezone/v2"
-	"github.com/thecomputerm/lazycph/internal/core"
 	"github.com/thecomputerm/lazycph/internal/ui/list"
 	"github.com/thecomputerm/lazycph/internal/ui/output"
 	"github.com/thecomputerm/lazycph/internal/ui/textarea"
@@ -26,12 +25,13 @@ type Model struct {
 	width, height int
 }
 
+var _ tea.Model = (*Model)(nil)
+
 func New() Model {
-	testCases, _ := core.GetTestCases()
-	testCaseList := list.New(&testCases)
+	zone.NewGlobal()
 
 	model := Model{
-		TestCaseList: testCaseList,
+		TestCaseList: list.New(),
 		Input:        textarea.New("Input"),
 		Expected:     textarea.New("Expected Output"),
 		Output:       output.New(),
@@ -46,10 +46,10 @@ func New() Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(tea.RequestBackgroundColor, textarea.Blink, m.TestCaseList.SelectTestCase(0))
+	return tea.Batch(tea.RequestWindowSize, tea.RequestBackgroundColor, textarea.Blink)
 }
 
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
@@ -82,7 +82,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			return m, m.focusPrev()
 		case key.Matches(msg, m.keyMap.Help):
 			m.Help.ShowAll = !m.Help.ShowAll
-			// help height is dynamic
 			m.updateLayout()
 		}
 	case tea.MouseReleaseMsg:
@@ -93,8 +92,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				cmds = append(cmds, m.focusOn(1))
 			} else if zone.Get("section-expected").InBounds(msg) {
 				cmds = append(cmds, m.focusOn(2))
-			} else if zone.Get("section-output").InBounds(msg) {
+			} else if zone.Get("setion-output").InBounds(msg) {
 				cmds = append(cmds, m.focusOn(3))
+			} else if zone.Get("section-help").InBounds(msg) {
+				m.Help.ShowAll = !m.Help.ShowAll
+				m.updateLayout()
 			}
 		}
 	}
@@ -104,11 +106,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m Model) View() string {
-	help := m.HelpView()
-
-	credit := lipgloss.NewStyle().Italic(true).Hyperlink("https://thecomputerm.dev").Render("by TheComputerM")
-
+func (m Model) View() tea.View {
 	content := lipgloss.JoinVertical(
 		lipgloss.Left,
 		lipgloss.JoinHorizontal(
@@ -124,12 +122,14 @@ func (m Model) View() string {
 				zone.Mark("section-output", m.Output.View()),
 			),
 		),
-		lipgloss.JoinHorizontal(
-			lipgloss.Center,
-			help,
-			lipgloss.PlaceHorizontal(m.width-lipgloss.Width(help), lipgloss.Right, credit),
-		),
+		zone.Mark("section-help", m.helpView()),
 	)
 
-	return zone.Scan(content)
+	v := tea.NewView(zone.Scan(content))
+
+	v.AltScreen = true
+	v.WindowTitle = "LazyCPH"
+	v.MouseMode = tea.MouseModeCellMotion
+
+	return v
 }
