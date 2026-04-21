@@ -9,6 +9,7 @@ import (
 	"charm.land/lipgloss/v2"
 
 	zone "github.com/lrstanley/bubblezone/v2"
+	"github.com/thecomputerm/lazycph/internal/core"
 	"github.com/thecomputerm/lazycph/internal/ui/list"
 	"github.com/thecomputerm/lazycph/internal/ui/output"
 	"github.com/thecomputerm/lazycph/internal/ui/textarea"
@@ -76,6 +77,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Input.BindValue(&msg.TestCase.Input)
 		m.Expected.BindValue(&msg.TestCase.Expected)
 		m.Output.SetContent(msg.TestCase.Output)
+	case core.TestCaseExecutedMsg:
+		// testcase finished running; refresh output if still selected
+		if m.TestCaseList.Selected() == msg.TestCase {
+			m.Output.SetContent(msg.TestCase.Output)
+		}
+		return m, nil
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.Quit):
@@ -88,8 +95,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Help.ShowAll = !m.Help.ShowAll
 			m.updateLayout()
 		case key.Matches(msg, m.keyMap.Run):
-			// TODO: run testcase
-			return m, nil
+			return m, m.TestCaseList.Selected().Execute(m.filePath)
+		case key.Matches(msg, m.keyMap.RunAll):
+			for _, tc := range m.TestCaseList.Items {
+				cmds = append(cmds, tc.Execute(m.filePath))
+			}
+			return m, tea.Batch(cmds...)
 		}
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {

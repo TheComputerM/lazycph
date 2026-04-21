@@ -14,7 +14,7 @@ import (
 type Model struct {
 	Title string
 
-	items  core.TestCaseList
+	Items  core.TestCaseList
 	KeyMap KeyMap
 	styles Styles
 
@@ -44,14 +44,14 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case key.Matches(msg, m.KeyMap.Up):
 			return m, m.SelectTestCase(max(m.index-1, 0))
 		case key.Matches(msg, m.KeyMap.Down):
-			return m, m.SelectTestCase(min(m.index+1, len(m.items)-1))
+			return m, m.SelectTestCase(min(m.index+1, len(m.Items)-1))
 		case key.Matches(msg, m.KeyMap.Create):
-			m.items.Create()
+			m.Items.Create()
 			m.KeyMap.Delete.SetEnabled(true)
-			return m, m.SelectTestCase(len(m.items) - 1)
+			return m, m.SelectTestCase(len(m.Items) - 1)
 		case key.Matches(msg, m.KeyMap.Delete):
-			m.items.Delete(m.index)
-			if len(m.items) == 1 {
+			m.Items.Delete(m.index)
+			if len(m.Items) == 1 {
 				// Disable delete key when only one test case remains
 				m.KeyMap.Delete.SetEnabled(false)
 			}
@@ -59,7 +59,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		}
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {
-			for i, _ := range m.items {
+			for i, _ := range m.Items {
 				if zone.Get("listitem-" + strconv.Itoa(i)).InBounds(msg) {
 					return m, m.SelectTestCase(i)
 				}
@@ -72,7 +72,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 // Returns the currently selected test case
 func (m *Model) Selected() *core.TestCase {
-	return m.items[m.index]
+	return m.Items[m.index]
 }
 
 type TestCaseSelectedMsg struct {
@@ -82,7 +82,7 @@ type TestCaseSelectedMsg struct {
 
 // Selects the test case at the given index and returns a TestCaseSelectedMsg
 func (m *Model) SelectTestCase(index int) tea.Cmd {
-	if !(index >= 0 && index < len(m.items)) {
+	if !(index >= 0 && index < len(m.Items)) {
 		return nil
 	}
 
@@ -103,7 +103,7 @@ func (m Model) View() string {
 		state = m.styles.Focused
 	}
 
-	for i, testCase := range m.items {
+	for i, testCase := range m.Items {
 		if i > 0 {
 			sb.WriteString("\n\n")
 		}
