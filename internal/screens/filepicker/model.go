@@ -6,6 +6,7 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/thecomputerm/lazycph/internal/core"
 )
 
 type Model struct {
@@ -34,7 +35,8 @@ func (m Model) Init() tea.Cmd {
 }
 
 type FileSelectedMsg struct {
-	Path string
+	Path      string
+	TestCases core.TestCaseList
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -57,7 +59,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.Picker, cmd = m.Picker.Update(msg)
 
 	if didSelect, path := m.Picker.DidSelectFile(msg); didSelect {
-		return m, func() tea.Msg { return FileSelectedMsg{Path: path} }
+		testCases, err := core.LoadTestCases(path)
+		if err == nil {
+			return m, func() tea.Msg {
+				return FileSelectedMsg{Path: path, TestCases: testCases}
+			}
+		}
+
 	}
 
 	return m, cmd

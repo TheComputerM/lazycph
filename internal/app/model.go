@@ -26,7 +26,7 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case filepicker.FileSelectedMsg:
-		m.active = workspace.New(msg.Path)
+		m.active = workspace.New(msg)
 		return m, m.active.Init()
 	default:
 		var cmd tea.Cmd

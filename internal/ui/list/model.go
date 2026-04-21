@@ -24,10 +24,8 @@ type Model struct {
 	height  int
 }
 
-func New(title string) Model {
+func New() Model {
 	return Model{
-		Title: title,
-
 		KeyMap: DefaultKeyMap(),
 		styles: DefaultStyles(true),
 	}

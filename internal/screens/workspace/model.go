@@ -10,6 +10,7 @@ import (
 
 	zone "github.com/lrstanley/bubblezone/v2"
 	"github.com/thecomputerm/lazycph/internal/core"
+	"github.com/thecomputerm/lazycph/internal/screens/filepicker"
 	"github.com/thecomputerm/lazycph/internal/ui/list"
 	"github.com/thecomputerm/lazycph/internal/ui/output"
 	"github.com/thecomputerm/lazycph/internal/ui/textarea"
@@ -31,19 +32,22 @@ type Model struct {
 
 var _ tea.Model = (*Model)(nil)
 
-func New(filePath string) Model {
+func New(msg filepicker.FileSelectedMsg) Model {
 	zone.NewGlobal()
 
 	model := Model{
-		TestCaseList: list.New(filepath.Base(filePath)),
+		TestCaseList: list.New(),
 		Input:        textarea.New("Input"),
 		Expected:     textarea.New("Expected Output"),
 		Output:       output.New(),
 		Help:         help.New(),
 
 		keyMap:   DefaultKeyMap(),
-		filePath: filePath,
+		filePath: msg.Path,
 	}
+
+	model.TestCaseList.Title = filepath.Base(msg.Path)
+	model.TestCaseList.Items = msg.TestCases
 
 	model.focusOn(0)
 
@@ -51,7 +55,12 @@ func New(filePath string) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(tea.RequestWindowSize, tea.RequestBackgroundColor, textarea.Blink)
+	return tea.Batch(
+		tea.RequestWindowSize,
+		tea.RequestBackgroundColor,
+		textarea.Blink,
+		m.TestCaseList.SelectTestCase(0),
+	)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -82,7 +91,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.TestCaseList.Selected() == msg.TestCase {
 			m.Output.SetContent(msg.TestCase.Output)
 		}
-		return m, nil
+
+		// save updated testcase output
+		return m, func() tea.Msg {
+			m.TestCaseList.Items.Save(m.filePath)
+			return nil
+		}
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.Quit):
