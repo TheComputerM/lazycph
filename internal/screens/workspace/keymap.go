@@ -1,6 +1,7 @@
 package workspace
 
 import (
+	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/key"
 )
 
@@ -22,9 +23,23 @@ func DefaultKeyMap() KeyMap {
 	}
 }
 
+func (m *Model) focusedKeyMap() help.KeyMap {
+	switch m.focused {
+	case 0:
+		return m.TestCaseList.KeyMap
+	case 1:
+		return m.Input.KeyMap
+	case 2:
+		return m.Expected.KeyMap
+	case 3:
+		return m.Output.KeyMap
+	}
+	return nil
+}
+
 func (m *Model) ShortHelp() []key.Binding {
 	global := []key.Binding{m.keyMap.Run, m.keyMap.Help, m.keyMap.Quit}
-	focused := m.currentlyFocused().ShortHelp()
+	focused := m.focusedKeyMap().ShortHelp()
 	return append(focused, global...)
 }
 
@@ -34,7 +49,7 @@ func (m *Model) FullHelp() [][]key.Binding {
 		{m.keyMap.Next, m.keyMap.Prev},
 		{m.keyMap.Help, m.keyMap.Quit},
 	}
-	focused := m.currentlyFocused().FullHelp()
+	focused := m.focusedKeyMap().FullHelp()
 	return append(focused, global...)
 }
 

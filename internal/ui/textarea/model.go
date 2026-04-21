@@ -8,7 +8,7 @@ import (
 type Model struct {
 	*textarea.Model
 
-	keyMap KeyMap
+	KeyMap KeyMap
 	value  *string
 }
 
@@ -21,7 +21,7 @@ func New(placeholder string) Model {
 
 	return Model{
 		Model:  &model,
-		keyMap: keymap,
+		KeyMap: keymap,
 	}
 }
 

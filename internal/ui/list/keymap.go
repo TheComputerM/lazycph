@@ -33,12 +33,12 @@ func DefaultKeyMap() KeyMap {
 	}
 }
 
-var _ help.KeyMap = (*Model)(nil)
+var _ help.KeyMap = KeyMap{}
 
-func (m *Model) ShortHelp() []key.Binding {
-	return []key.Binding{m.keyMap.Create, m.keyMap.Delete}
+func (k KeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.Create, k.Delete}
 }
 
-func (m *Model) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{m.keyMap.Create, m.keyMap.Delete}, {m.keyMap.Up, m.keyMap.Down}}
+func (k KeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.Create, k.Delete}, {k.Up, k.Down}}
 }

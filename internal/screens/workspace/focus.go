@@ -1,12 +1,10 @@
 package workspace
 
 import (
-	"charm.land/bubbles/v2/help"
 	tea "charm.land/bubbletea/v2"
 )
 
 type focusable interface {
-	help.KeyMap
 	Focus() tea.Cmd
 	Blur()
 	Update(msg tea.Msg) tea.Cmd

@@ -9,7 +9,7 @@ import (
 type Model struct {
 	*viewport.Model
 
-	keyMap KeyMap
+	KeyMap KeyMap
 	styles Styles
 
 	focused bool
@@ -25,7 +25,7 @@ func New() Model {
 
 	return Model{
 		Model:  &model,
-		keyMap: DefaultKeyMap(),
+		KeyMap: DefaultKeyMap(),
 		styles: styles,
 	}
 }

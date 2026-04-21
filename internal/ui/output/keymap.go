@@ -15,12 +15,12 @@ func DefaultKeyMap() KeyMap {
 	return KeyMap{KeyMap: keymap}
 }
 
-var _ help.KeyMap = (*Model)(nil)
+var _ help.KeyMap = KeyMap{}
 
-func (m *Model) ShortHelp() []key.Binding {
+func (k KeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{}
 }
 
-func (m *Model) FullHelp() [][]key.Binding {
+func (k KeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{}
 }

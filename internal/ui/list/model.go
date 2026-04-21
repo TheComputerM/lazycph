@@ -15,7 +15,7 @@ type Model struct {
 	Title string
 
 	items  core.TestCaseList
-	keyMap KeyMap
+	KeyMap KeyMap
 	styles Styles
 
 	// index of the currently selected test case
@@ -28,7 +28,7 @@ func New() Model {
 	return Model{
 		Title: "Select File",
 
-		keyMap: DefaultKeyMap(),
+		KeyMap: DefaultKeyMap(),
 		styles: DefaultStyles(true),
 	}
 }
@@ -41,19 +41,19 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.keyMap.Up):
+		case key.Matches(msg, m.KeyMap.Up):
 			return m.SelectTestCase(max(m.index-1, 0))
-		case key.Matches(msg, m.keyMap.Down):
+		case key.Matches(msg, m.KeyMap.Down):
 			return m.SelectTestCase(min(m.index+1, len(m.items)-1))
-		case key.Matches(msg, m.keyMap.Create):
+		case key.Matches(msg, m.KeyMap.Create):
 			m.items.Create()
-			m.keyMap.Delete.SetEnabled(true)
+			m.KeyMap.Delete.SetEnabled(true)
 			return m.SelectTestCase(len(m.items) - 1)
-		case key.Matches(msg, m.keyMap.Delete):
+		case key.Matches(msg, m.KeyMap.Delete):
 			m.items.Delete(m.index)
 			if len(m.items) == 1 {
 				// Disable delete key when only one test case remains
-				m.keyMap.Delete.SetEnabled(false)
+				m.KeyMap.Delete.SetEnabled(false)
 			}
 			return m.SelectTestCase(max(m.index-1, 0))
 		}
