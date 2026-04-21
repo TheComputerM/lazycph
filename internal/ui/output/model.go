@@ -18,25 +18,25 @@ type Model struct {
 func New() Model {
 	model := viewport.New()
 
-	styles := DefaultStyles(true)
 	model.SetContent("")
 
-	model.Style = styles.Base
-
-	return Model{
+	output := Model{
 		Model:  &model,
 		KeyMap: DefaultKeyMap(),
-		styles: styles,
 	}
+
+	output.SetStyles(DefaultStyles(true))
+
+	return output
 }
 
-func (m *Model) Update(msg tea.Msg) tea.Cmd {
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	if !m.focused {
-		return nil
+		return m, nil
 	}
 	model, cmd := m.Model.Update(msg)
 	m.Model = &model
-	return cmd
+	return m, cmd
 }
 
 func (m Model) View() string {

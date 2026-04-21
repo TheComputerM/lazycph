@@ -25,7 +25,7 @@ func New(placeholder string) Model {
 	}
 }
 
-func (m *Model) Update(msg tea.Msg) tea.Cmd {
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	model, cmd := m.Model.Update(msg)
 	m.Model = &model
 
@@ -37,7 +37,7 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 		}
 	}
 
-	return cmd
+	return m, cmd
 }
 
 func (m *Model) BindValue(value *string) {

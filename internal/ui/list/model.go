@@ -33,41 +33,41 @@ func New() Model {
 	}
 }
 
-func (m *Model) Update(msg tea.Msg) tea.Cmd {
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	if !m.focused {
-		return nil
+		return m, nil
 	}
 
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.KeyMap.Up):
-			return m.SelectTestCase(max(m.index-1, 0))
+			return m, m.SelectTestCase(max(m.index-1, 0))
 		case key.Matches(msg, m.KeyMap.Down):
-			return m.SelectTestCase(min(m.index+1, len(m.items)-1))
+			return m, m.SelectTestCase(min(m.index+1, len(m.items)-1))
 		case key.Matches(msg, m.KeyMap.Create):
 			m.items.Create()
 			m.KeyMap.Delete.SetEnabled(true)
-			return m.SelectTestCase(len(m.items) - 1)
+			return m, m.SelectTestCase(len(m.items) - 1)
 		case key.Matches(msg, m.KeyMap.Delete):
 			m.items.Delete(m.index)
 			if len(m.items) == 1 {
 				// Disable delete key when only one test case remains
 				m.KeyMap.Delete.SetEnabled(false)
 			}
-			return m.SelectTestCase(max(m.index-1, 0))
+			return m, m.SelectTestCase(max(m.index-1, 0))
 		}
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {
 			for i, _ := range m.items {
 				if zone.Get("listitem-" + strconv.Itoa(i)).InBounds(msg) {
-					return m.SelectTestCase(i)
+					return m, m.SelectTestCase(i)
 				}
 			}
 		}
 	}
 
-	return nil
+	return m, nil
 }
 
 // Returns the currently selected test case

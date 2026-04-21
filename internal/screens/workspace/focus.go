@@ -7,7 +7,6 @@ import (
 type focusable interface {
 	Focus() tea.Cmd
 	Blur()
-	Update(msg tea.Msg) tea.Cmd
 }
 
 func (m *Model) focusableAt(index uint) focusable {

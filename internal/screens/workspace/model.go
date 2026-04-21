@@ -101,7 +101,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	cmds = append(cmds, m.currentlyFocused().Update(msg))
+	var cmd tea.Cmd
+	m.TestCaseList, cmd = m.TestCaseList.Update(msg)
+	cmds = append(cmds, cmd)
+	m.Input, cmd = m.Input.Update(msg)
+	cmds = append(cmds, cmd)
+	m.Expected, cmd = m.Expected.Update(msg)
+	cmds = append(cmds, cmd)
+	m.Output, cmd = m.Output.Update(msg)
+	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
