@@ -1,6 +1,8 @@
 package workspace
 
 import (
+	"path/filepath"
+
 	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
@@ -21,23 +23,25 @@ type Model struct {
 
 	keyMap KeyMap
 
+	filePath      string
 	focused       uint
 	width, height int
 }
 
 var _ tea.Model = (*Model)(nil)
 
-func New() Model {
+func New(filePath string) Model {
 	zone.NewGlobal()
 
 	model := Model{
-		TestCaseList: list.New(),
+		TestCaseList: list.New(filepath.Base(filePath)),
 		Input:        textarea.New("Input"),
 		Expected:     textarea.New("Expected Output"),
 		Output:       output.New(),
 		Help:         help.New(),
 
-		keyMap: DefaultKeyMap(),
+		keyMap:   DefaultKeyMap(),
+		filePath: filePath,
 	}
 
 	model.focusOn(0)
@@ -83,6 +87,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keyMap.Help):
 			m.Help.ShowAll = !m.Help.ShowAll
 			m.updateLayout()
+		case key.Matches(msg, m.keyMap.Run):
+			// TODO: run testcase
+			return m, nil
 		}
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {

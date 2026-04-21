@@ -24,9 +24,9 @@ type Model struct {
 	height  int
 }
 
-func New() Model {
+func New(title string) Model {
 	return Model{
-		Title: "Select File",
+		Title: title,
 
 		KeyMap: DefaultKeyMap(),
 		styles: DefaultStyles(true),

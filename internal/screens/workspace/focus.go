@@ -23,10 +23,6 @@ func (m *Model) focusableAt(index uint) focusable {
 	return nil
 }
 
-func (m *Model) currentlyFocused() focusable {
-	return m.focusableAt(m.focused)
-}
-
 func (m *Model) focusNext() tea.Cmd {
 	return m.focusOn((m.focused + 1) % 4)
 }
