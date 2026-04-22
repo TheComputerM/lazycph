@@ -30,6 +30,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case filepicker.FileSelectedMsg:
 		m.active = workspace.New(msg)
 		return m, m.active.Init()
+	case workspace.SelectFileMsg:
+		m.active = filepicker.New()
+		return m, m.active.Init()
 	default:
 		var cmd tea.Cmd
 		m.active, cmd = m.active.Update(msg)

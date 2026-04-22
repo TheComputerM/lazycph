@@ -63,6 +63,9 @@ func (m Model) Init() tea.Cmd {
 	)
 }
 
+type SelectFileMsg struct {
+}
+
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
@@ -112,6 +115,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, tc.ExecuteCmd(m.filePath))
 			}
 			return m, tea.Batch(cmds...)
+		case key.Matches(msg, m.keyMap.SelectFile):
+			return m, func() tea.Msg {
+				return SelectFileMsg{}
+			}
 		}
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {
