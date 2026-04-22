@@ -14,6 +14,7 @@ type Model struct {
 	Help   help.Model
 
 	keyMap        KeyMap
+	styles        Styles
 	width, height int
 }
 
@@ -33,6 +34,7 @@ func New(currentDirectory string) Model {
 		Picker: fp,
 		Help:   help.New(),
 		keyMap: DefaultKeyMap(),
+		styles: DefaultStyles(),
 	}
 }
 
@@ -51,6 +53,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 		m.updateLayout()
+
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.Quit):
@@ -84,6 +87,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() tea.View {
 	content := lipgloss.JoinVertical(
 		lipgloss.Left,
+		m.styles.Title.Width(m.width).Render("LazyCPH - Select File"),
 		m.Picker.View(),
 		m.Help.View(m.keyMap),
 	)

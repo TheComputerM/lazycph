@@ -7,6 +7,9 @@ import (
 func (m *Model) updateLayout() {
 	availWidth, availHeight := m.width, m.height
 
+	// title
+	availHeight -= m.styles.Title.GetVerticalFrameSize() + 1
+
 	// help
 	m.Help.SetWidth(availWidth)
 

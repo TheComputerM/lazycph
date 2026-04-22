@@ -93,7 +93,7 @@ func (m *Model) SelectTestCase(index int) tea.Cmd {
 func (m Model) View() string {
 	var sb strings.Builder
 
-	sb.WriteString(m.styles.Title.Render(m.Title))
+	sb.WriteString(zone.Mark("list-title", m.styles.Title.Render(m.Title)))
 	sb.WriteString("\n\n")
 
 	var state StyleState = m.styles.Blurred
