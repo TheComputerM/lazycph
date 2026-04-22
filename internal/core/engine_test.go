@@ -20,7 +20,7 @@ func TestEngine(t *testing.T) {
 				t.Skip("c++ compiler not found, skipping")
 			}
 
-			engine := Engines["cpp"]
+			engine := Engines[".cpp"]
 			out, err := engine.Run(testDataPath("cpp/simple.cpp"), "")
 			if err != nil {
 				t.Fatalf("unexpected error: %v\noutput: %s", err, out)
@@ -35,7 +35,7 @@ func TestEngine(t *testing.T) {
 				t.Skip("python3 not found, skipping")
 			}
 
-			engine := Engines["py"]
+			engine := Engines[".py"]
 			out, err := engine.Run(testDataPath("python/simple.py"), "")
 			if err != nil {
 				t.Fatalf("unexpected error: %v\noutput: %s", err, out)

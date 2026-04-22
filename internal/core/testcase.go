@@ -53,12 +53,12 @@ func (tc *TestCase) ExecuteCmd(srcPath string) tea.Cmd {
 
 // run performs the synchronous execution and updates tc with the verdict.
 func (tc *TestCase) Execute(srcPath string) {
-	ext := strings.TrimPrefix(filepath.Ext(srcPath), ".")
+	ext := filepath.Ext(srcPath)
 	engine, ok := Engines[ext]
 	if !ok {
 		tc.Status = TestCaseStatusError
 		tc.Details = "No Engine"
-		tc.Output = fmt.Sprintf("LazyCPH has no execution engine for .%s, add one at ~/.config/lazycph.json", ext)
+		tc.Output = fmt.Sprintf("LazyCPH has no execution engine for %s, add one at ~/.config/lazycph.json", ext)
 		return
 	}
 

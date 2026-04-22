@@ -9,11 +9,11 @@ import (
 
 // default engines
 var Engines = map[string]Engine{
-	"cpp": {
+	".cpp": {
 		Mode:    "compile",
 		Command: []string{"c++", "{file}", "-o", "{temp}", "-std=c++17"},
 	},
-	"py": {
+	".py": {
 		Mode:    "interpret",
 		Command: []string{"python3", "{file}"},
 	},
