@@ -25,6 +25,8 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case error:
+		return m, tea.Quit
 	case filepicker.FileSelectedMsg:
 		m.active = workspace.New(msg)
 		return m, m.active.Init()

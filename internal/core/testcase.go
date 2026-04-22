@@ -104,6 +104,7 @@ func LoadTestCases(filePath string) (TestCaseList, error) {
 	return list, nil
 }
 
+// will always ensure that there is atleast 1 testcase present for filePath
 func ensureTestCaseFile(filePath string) error {
 	lazyCphDir := filepath.Join(filepath.Dir(filePath), ".lazycph")
 	if _, err := os.Stat(lazyCphDir); err != nil {
@@ -120,19 +121,32 @@ func ensureTestCaseFile(filePath string) error {
 		}
 	}
 
+	sample := TestCaseList{
+		&TestCase{
+			Status:  TestCaseStatusPending,
+			Details: "Idle",
+		},
+	}
+
 	testCaseFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))+".json")
-	if _, err := os.Stat(testCaseFile); err != nil {
+
+	needsSave := false
+
+	data, err := os.ReadFile(testCaseFile)
+	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			return err
 		}
-
-		sample := TestCaseList{
-			&TestCase{
-				Status:  TestCaseStatusPending,
-				Details: "Idle",
-			},
+		needsSave = true
+	} else {
+		var list TestCaseList
+		if err := json.Unmarshal(data, &list); err != nil || len(list) == 0 {
+			needsSave = true
 		}
-		if err := sample.Save(testCaseFile); err != nil {
+	}
+
+	if needsSave {
+		if err := sample.writeToFile(filePath); err != nil {
 			return err
 		}
 	}
@@ -140,7 +154,7 @@ func ensureTestCaseFile(filePath string) error {
 	return nil
 }
 
-func (list TestCaseList) Save(filePath string) error {
+func (list TestCaseList) writeToFile(filePath string) error {
 	// assume lazycph dir exists
 	lazyCphDir := filepath.Join(filepath.Dir(filePath), ".lazycph")
 	testCaseFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))+".json")
@@ -151,6 +165,13 @@ func (list TestCaseList) Save(filePath string) error {
 	}
 
 	return os.WriteFile(testCaseFile, data, 0o644)
+}
+
+func (list TestCaseList) Save(filePath string) tea.Cmd {
+	return func() tea.Msg {
+		list.writeToFile(filePath)
+		return nil
+	}
 }
 
 func (list *TestCaseList) Create() {

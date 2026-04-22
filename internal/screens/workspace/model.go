@@ -93,10 +93,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		// save updated testcase output
-		return m, func() tea.Msg {
-			m.TestCaseList.Items.Save(m.filePath)
-			return nil
-		}
+		return m, m.TestCaseList.Items.Save(m.filePath)
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.Quit):
