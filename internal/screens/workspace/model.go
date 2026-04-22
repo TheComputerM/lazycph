@@ -93,7 +93,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		// save updated testcase output
-		return m, m.TestCaseList.Items.Save(m.filePath)
+		return m, m.TestCaseList.Items.SaveCmd(m.filePath)
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.Quit):
@@ -106,10 +106,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Help.ShowAll = !m.Help.ShowAll
 			m.updateLayout()
 		case key.Matches(msg, m.keyMap.Run):
-			return m, m.TestCaseList.Selected().Execute(m.filePath)
+			return m, m.TestCaseList.Selected().ExecuteCmd(m.filePath)
 		case key.Matches(msg, m.keyMap.RunAll):
 			for _, tc := range m.TestCaseList.Items {
-				cmds = append(cmds, tc.Execute(m.filePath))
+				cmds = append(cmds, tc.ExecuteCmd(m.filePath))
 			}
 			return m, tea.Batch(cmds...)
 		}

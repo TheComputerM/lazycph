@@ -13,6 +13,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
+// TestCaseStatus is the verdict of the most recent run of a TestCase.
 type TestCaseStatus string
 
 const (
@@ -26,64 +27,102 @@ type TestCase struct {
 	Status  TestCaseStatus `json:"status"`
 	Details string         `json:"details"`
 
-	// STDIN for the test case
+	// Input is the data fed to the program's stdin.
 	Input string `json:"input"`
 
-	// Expected STDOUT for the test case
+	// Expected is the stdout the program should produce.
 	Expected string `json:"expected"`
 
-	// Actual STDOUT from the test case
+	// Output is the actual stdout (and stderr) captured during the last run.
 	Output string `json:"output"`
 }
 
+// TestCaseExecutedMsg is dispatched when a TestCase has finished running.
 type TestCaseExecutedMsg struct {
 	TestCase *TestCase
 }
 
-func (tc *TestCase) Execute(fpath string) tea.Cmd {
+// Execute runs the test case against the source file at srcPath.
+func (tc *TestCase) ExecuteCmd(srcPath string) tea.Cmd {
 	tc.Status = TestCaseStatusPending
 	tc.Details = "Running..."
 
 	return func() tea.Msg {
-		ext := strings.TrimPrefix(filepath.Ext(fpath), ".")
-
-		engine, ok := Engines[ext]
-		if !ok {
-			tc.Status = TestCaseStatusError
-			tc.Details = fmt.Sprintf("no engine for extension: .%s", ext)
-			return TestCaseExecutedMsg{TestCase: tc}
-		}
-
-		start := time.Now()
-		output, err := engine.Run(fpath, tc.Input)
-		elapsed := time.Since(start)
-		tc.Output = output
-
-		if err != nil {
-			tc.Status = TestCaseStatusError
-			switch {
-			case errors.Is(err, ErrCompile):
-				tc.Details = "Compilation Error"
-			case errors.Is(err, ErrExecute):
-				tc.Details = "Execution Error"
-			}
-			return TestCaseExecutedMsg{TestCase: tc}
-		}
-
-		tc.Details = fmt.Sprintf("%dms", elapsed.Milliseconds())
-
-		if strings.TrimRight(output, "\n") == strings.TrimRight(tc.Expected, "\n") {
-			tc.Status = TestCaseStatusCorrect
-		} else {
-			tc.Status = TestCaseStatusWrong
-		}
+		tc.Execute(srcPath)
 		return TestCaseExecutedMsg{TestCase: tc}
 	}
 }
 
+// run performs the synchronous execution and updates tc with the verdict.
+func (tc *TestCase) Execute(srcPath string) {
+	ext := strings.TrimPrefix(filepath.Ext(srcPath), ".")
+	engine, ok := Engines[ext]
+	if !ok {
+		tc.Status = TestCaseStatusError
+		tc.Details = "No Engine"
+		tc.Output = fmt.Sprintf("LazyCPH has no execution engine for .%s, add one at ~/.config/lazycph.json", ext)
+		return
+	}
+
+	start := time.Now()
+	output, err := engine.Run(srcPath, tc.Input)
+	tc.Output = output
+
+	if err != nil {
+		tc.Status = TestCaseStatusError
+
+		switch {
+		case errors.Is(err, ErrCompile):
+			tc.Details = "Compilation Error"
+		case errors.Is(err, ErrExecute):
+			tc.Details = "Runtime Error"
+		default:
+			tc.Details = "Unknown Error"
+			tc.Output = err.Error()
+		}
+		return
+	}
+
+	tc.Details = fmt.Sprintf("%dms", time.Since(start).Milliseconds())
+	if outputMatches(output, tc.Expected) {
+		tc.Status = TestCaseStatusCorrect
+	} else {
+		tc.Status = TestCaseStatusWrong
+	}
+}
+
+// outputMatches reports whether actual matches expected, ignoring trailing
+// newlines on either side.
+func outputMatches(actual, expected string) bool {
+	return strings.TrimRight(actual, "\n") == strings.TrimRight(expected, "\n")
+}
+
+// TestCaseList is an ordered collection of test cases for a single source file.
 type TestCaseList []*TestCase
 
-func LoadTestCases(filePath string) (TestCaseList, error) {
+// newTestCase returns a TestCase in its initial idle state.
+func newTestCase() *TestCase {
+	return &TestCase{
+		Status:  TestCaseStatusPending,
+		Details: "Idle",
+	}
+}
+
+// Append adds a fresh, idle test case to the end of the list.
+func (list *TestCaseList) Append() {
+	*list = append(*list, newTestCase())
+}
+
+// RemoveAt removes the test case at index. It is a no-op if index is out of
+// range.
+func (list *TestCaseList) RemoveAt(index int) {
+	if index < 0 || index >= len(*list) {
+		return
+	}
+	*list = slices.Delete(*list, index, index+1)
+}
+
+func LoadTestCaseList(filePath string) (TestCaseList, error) {
 	if err := ensureTestCaseFile(filePath); err != nil {
 		return nil, err
 	}
@@ -104,7 +143,6 @@ func LoadTestCases(filePath string) (TestCaseList, error) {
 	return list, nil
 }
 
-// will always ensure that there is atleast 1 testcase present for filePath
 func ensureTestCaseFile(filePath string) error {
 	lazyCphDir := filepath.Join(filepath.Dir(filePath), ".lazycph")
 	if _, err := os.Stat(lazyCphDir); err != nil {
@@ -121,32 +159,14 @@ func ensureTestCaseFile(filePath string) error {
 		}
 	}
 
-	sample := TestCaseList{
-		&TestCase{
-			Status:  TestCaseStatusPending,
-			Details: "Idle",
-		},
-	}
-
 	testCaseFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))+".json")
-
-	needsSave := false
-
-	data, err := os.ReadFile(testCaseFile)
-	if err != nil {
+	if _, err := os.Stat(testCaseFile); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			return err
 		}
-		needsSave = true
-	} else {
-		var list TestCaseList
-		if err := json.Unmarshal(data, &list); err != nil || len(list) == 0 {
-			needsSave = true
-		}
-	}
 
-	if needsSave {
-		if err := sample.writeToFile(filePath); err != nil {
+		sample := TestCaseList{newTestCase()}
+		if err := sample.Save(filePath); err != nil {
 			return err
 		}
 	}
@@ -154,7 +174,7 @@ func ensureTestCaseFile(filePath string) error {
 	return nil
 }
 
-func (list TestCaseList) writeToFile(filePath string) error {
+func (list TestCaseList) Save(filePath string) error {
 	// assume lazycph dir exists
 	lazyCphDir := filepath.Join(filepath.Dir(filePath), ".lazycph")
 	testCaseFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))+".json")
@@ -167,20 +187,8 @@ func (list TestCaseList) writeToFile(filePath string) error {
 	return os.WriteFile(testCaseFile, data, 0o644)
 }
 
-func (list TestCaseList) Save(filePath string) tea.Cmd {
+func (list TestCaseList) SaveCmd(filePath string) tea.Cmd {
 	return func() tea.Msg {
-		list.writeToFile(filePath)
-		return nil
+		return list.Save(filePath)
 	}
-}
-
-func (list *TestCaseList) Create() {
-	*list = append(*list, &TestCase{
-		Status:  TestCaseStatusPending,
-		Details: "Idle",
-	})
-}
-
-func (list *TestCaseList) Delete(index int) {
-	*list = slices.Delete(*list, index, index+1)
 }

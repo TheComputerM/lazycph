@@ -44,11 +44,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case key.Matches(msg, m.KeyMap.Down):
 			return m, m.SelectTestCase(min(m.index+1, len(m.Items)-1))
 		case key.Matches(msg, m.KeyMap.Create):
-			m.Items.Create()
+			m.Items.Append()
 			m.KeyMap.Delete.SetEnabled(true)
 			return m, m.SelectTestCase(len(m.Items) - 1)
 		case key.Matches(msg, m.KeyMap.Delete):
-			m.Items.Delete(m.index)
+			m.Items.RemoveAt(m.index)
 			if len(m.Items) == 1 {
 				// Disable delete key when only one test case remains
 				m.KeyMap.Delete.SetEnabled(false)

@@ -25,7 +25,7 @@ func init() {
 		return
 	}
 
-	data, err := os.ReadFile(filepath.Join(configDir, "lazycph", "lazycph.json"))
+	data, err := os.ReadFile(filepath.Join(configDir, "lazycph.json"))
 	if err != nil {
 		return
 	}
