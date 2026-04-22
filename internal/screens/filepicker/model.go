@@ -19,9 +19,15 @@ type Model struct {
 
 var _ tea.Model = (*Model)(nil)
 
-func New() Model {
+func New(currentDirectory string) Model {
 	fp := filepicker.New()
 	fp.AutoHeight = false
+
+	fp.CurrentDirectory = currentDirectory
+	fp.AllowedTypes = make([]string, 0, len(core.Engines))
+	for engine, _ := range core.Engines {
+		fp.AllowedTypes = append(fp.AllowedTypes, engine)
+	}
 
 	return Model{
 		Picker: fp,
@@ -60,10 +66,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if didSelect, path := m.Picker.DidSelectFile(msg); didSelect {
 		testCases, err := core.LoadTestCaseList(path)
-		if err == nil {
+		if err != nil {
 			return m, func() tea.Msg {
-				return FileSelectedMsg{Path: path, TestCases: testCases}
+				return err
 			}
+		}
+
+		return m, func() tea.Msg {
+			return FileSelectedMsg{Path: path, TestCases: testCases}
 		}
 
 	}
@@ -72,7 +82,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() tea.View {
-	content := lipgloss.JoinVertical(lipgloss.Left, m.Picker.View(), m.Help.View(m.keyMap))
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		m.Picker.View(),
+		m.Help.View(m.keyMap),
+	)
 
 	v := tea.NewView(content)
 	v.AltScreen = true

@@ -64,6 +64,7 @@ func (m Model) Init() tea.Cmd {
 }
 
 type SelectFileMsg struct {
+	PreviousFile string
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -117,7 +118,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Batch(cmds...)
 		case key.Matches(msg, m.keyMap.SelectFile):
 			return m, func() tea.Msg {
-				return SelectFileMsg{}
+				return SelectFileMsg{PreviousFile: m.filePath}
 			}
 		}
 	case tea.MouseReleaseMsg:

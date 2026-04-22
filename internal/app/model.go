@@ -1,6 +1,9 @@
 package app
 
 import (
+	"os"
+	"path/filepath"
+
 	tea "charm.land/bubbletea/v2"
 	"github.com/thecomputerm/lazycph/internal/screens/filepicker"
 	"github.com/thecomputerm/lazycph/internal/screens/workspace"
@@ -13,9 +16,10 @@ type Model struct {
 var _ tea.Model = (*Model)(nil)
 
 func New() Model {
+	currentDirectory, _ := os.Getwd()
 
 	return Model{
-		active: filepicker.New(),
+		active: filepicker.New(currentDirectory),
 	}
 }
 
@@ -31,7 +35,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.active = workspace.New(msg)
 		return m, m.active.Init()
 	case workspace.SelectFileMsg:
-		m.active = filepicker.New()
+		m.active = filepicker.New(filepath.Dir(msg.PreviousFile))
 		return m, m.active.Init()
 	default:
 		var cmd tea.Cmd
