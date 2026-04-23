@@ -10,6 +10,6 @@ type Styles struct {
 func DefaultStyles(isDark bool) Styles {
 	return Styles{
 		Placeholder: lipgloss.NewStyle().Foreground(lipgloss.BrightBlack),
-		Base:        lipgloss.NewStyle().Padding(1),
+		Base:        lipgloss.NewStyle().Padding(1, 0),
 	}
 }

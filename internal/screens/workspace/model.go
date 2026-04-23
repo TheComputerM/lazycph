@@ -127,7 +127,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, m.focusOn(1))
 			} else if zone.Get("section-expected").InBounds(msg) {
 				cmds = append(cmds, m.focusOn(2))
-			} else if zone.Get("setion-output").InBounds(msg) {
+			} else if zone.Get("section-output").InBounds(msg) {
 				cmds = append(cmds, m.focusOn(3))
 			} else if zone.Get("section-help").InBounds(msg) {
 				m.Help.ShowAll = !m.Help.ShowAll
