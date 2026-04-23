@@ -44,9 +44,12 @@ func main() {
 			}
 
 			companion := cmd.Bool("companion")
-
-			p := tea.NewProgram(app.New(filepath, companion))
-			_, err := p.Run()
+			model, err := app.New(filepath, companion)
+			if err != nil {
+				return err
+			}
+			p := tea.NewProgram(model)
+			_, err = p.Run()
 			return err
 		},
 	}

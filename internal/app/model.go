@@ -2,7 +2,7 @@ package app
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"os"
 
 	tea "charm.land/bubbletea/v2"
@@ -25,26 +25,31 @@ type Model struct {
 
 var _ tea.Model = (*Model)(nil)
 
-func activeModelFromState(state string) tea.Model {
+func activeModelFromState(state string) (tea.Model, error) {
 	info, err := os.Stat(state)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			log.Fatalf("Path %s does not exist", state)
+			return nil, fmt.Errorf("Path %s does not exist", state)
 		}
-		log.Fatalf("Failed to stat path %s: %v", state, err)
+		return nil, fmt.Errorf("Failed to stat path %s: %v", state, err)
 	}
 	if info.IsDir() {
-		return filepicker.New(state)
+		return filepicker.New(state), nil
 	}
-	return workspace.New(state)
+	return workspace.New(state), nil
 }
 
-func New(state string, companionMode bool) Model {
+func New(state string, companionMode bool) (Model, error) {
+	active, err := activeModelFromState(state)
+	if err != nil {
+		return Model{}, err
+	}
+
 	return Model{
 		state:         state,
-		active:        activeModelFromState(state),
+		active:        active,
 		companionMode: companionMode,
-	}
+	}, nil
 }
 
 func (m Model) Init() tea.Cmd {
@@ -63,7 +68,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Path != "" {
 			m.state = msg.Path
 		}
-		m.active = activeModelFromState(m.state)
+		var err error
+		m.active, err = activeModelFromState(m.state)
+		if err != nil {
+			return m, func() tea.Msg {
+				return err
+			}
+		}
 		return m, m.active.Init()
 	case companion.Data:
 		m.active = companion.New(msg)
