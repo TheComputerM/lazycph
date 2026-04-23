@@ -11,5 +11,10 @@ func DefaultStyles(isDark bool) textarea.Styles {
 
 	styles.Focused.Prompt = styles.Focused.Prompt.Foreground(accent)
 
+	styles.Blurred.LineNumber = styles.Focused.CursorLineNumber
+	styles.Focused.LineNumber = styles.Focused.CursorLineNumber
+
+	styles.Focused.CursorLineNumber = lipgloss.NewStyle().Foreground(accent)
+
 	return styles
 }
