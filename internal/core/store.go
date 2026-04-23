@@ -11,12 +11,20 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
+// NewTestCase returns a TestCase in its initial idle state.
+func NewTestCase() *TestCase {
+	return &TestCase{
+		Status:  TestCaseStatusPending,
+		Details: "Idle",
+	}
+}
+
 func LoadTestCaseList(filePath string) TestCaseList {
 	list, err := loadTestCaseList(filePath)
 
-	if err != nil {
+	if err != nil || len(list) == 0 {
 		// return a new test case list if error with existing one
-		return TestCaseList{newTestCase()}
+		return TestCaseList{NewTestCase()}
 	}
 
 	return list
@@ -43,8 +51,8 @@ func loadTestCaseList(filePath string) (TestCaseList, error) {
 	return list, nil
 }
 
-func (list TestCaseList) Save(filePath string) error {
-	lazyCphDir := filepath.Join(filepath.Dir(filePath), ".lazycph")
+func (list TestCaseList) Save(sourceFile string) error {
+	lazyCphDir := filepath.Join(filepath.Dir(sourceFile), ".lazycph")
 	if info, err := os.Stat(lazyCphDir); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			return err
@@ -66,7 +74,7 @@ func (list TestCaseList) Save(filePath string) error {
 		return err
 	}
 
-	storeFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))+".json")
+	storeFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(sourceFile), filepath.Ext(sourceFile))+".json")
 
 	return os.WriteFile(storeFile, data, 0o644)
 }

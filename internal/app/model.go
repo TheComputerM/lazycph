@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/thecomputerm/lazycph/internal/screens/companion"
 	"github.com/thecomputerm/lazycph/internal/screens/filepicker"
 	"github.com/thecomputerm/lazycph/internal/screens/workspace"
 )
@@ -18,6 +19,8 @@ type Model struct {
 	state string
 
 	active tea.Model
+
+	companionMode bool
 }
 
 var _ tea.Model = (*Model)(nil)
@@ -39,11 +42,17 @@ func New(state string) Model {
 	return Model{
 		state:  state,
 		active: active,
+
+		companionMode: true,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return m.active.Init()
+	cmds := []tea.Cmd{m.active.Init()}
+	if m.companionMode {
+		cmds = append(cmds, companion.StartServer)
+	}
+	return tea.Batch(cmds...)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -57,6 +66,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case workspace.SelectFileMsg:
 		m.state = filepath.Dir(m.state)
 		m.active = filepicker.New(m.state)
+		return m, m.active.Init()
+	case companion.Data:
+		m.active = companion.New(msg)
 		return m, m.active.Init()
 	default:
 		var cmd tea.Cmd

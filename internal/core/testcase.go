@@ -98,17 +98,9 @@ func outputMatches(actual, expected string) bool {
 // TestCaseList is an ordered collection of test cases for a single source file.
 type TestCaseList []*TestCase
 
-// newTestCase returns a TestCase in its initial idle state.
-func newTestCase() *TestCase {
-	return &TestCase{
-		Status:  TestCaseStatusPending,
-		Details: "Idle",
-	}
-}
-
 // Append adds a fresh, idle test case to the end of the list.
 func (list *TestCaseList) Append() {
-	*list = append(*list, newTestCase())
+	*list = append(*list, NewTestCase())
 }
 
 // RemoveAt removes the test case at index. It is a no-op if index is out of

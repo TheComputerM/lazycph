@@ -7,6 +7,9 @@ import (
 	"log"
 	"net"
 	"net/http"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/thecomputerm/lazycph/internal/core"
 )
 
 var companionPorts = []int{
@@ -19,13 +22,29 @@ var companionPorts = []int{
 	27121,
 }
 
-type CompanionData struct {
+type Data struct {
 	Name  string `json:"name"`
 	Group string `json:"group"`
 	URL   string `json:"url"`
+
+	Tests []struct {
+		Input  string `json:"input"`
+		Output string `json:"output"`
+	} `json:"tests"`
 }
 
-func CreateServer(onData func(CompanionData)) {
+func (d Data) toTestCaseList() core.TestCaseList {
+	testCases := make(core.TestCaseList, 0, len(d.Tests))
+	for _, test := range d.Tests {
+		tc := core.NewTestCase()
+		tc.Input = test.Input
+		tc.Expected = test.Output
+		testCases = append(testCases, tc)
+	}
+	return testCases
+}
+
+func CreateServer(onData func(Data)) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -34,7 +53,7 @@ func CreateServer(onData func(CompanionData)) {
 
 		defer r.Body.Close()
 
-		var data CompanionData
+		var data Data
 		if err := json.NewDecoder(io.LimitReader(r.Body, 1<<20)).Decode(&data); err != nil {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
@@ -55,4 +74,18 @@ func CreateServer(onData func(CompanionData)) {
 
 		log.Fatal(http.Serve(listener, handler))
 	}
+}
+
+var serverChan = make(chan Data, 1)
+
+func StartServer() tea.Msg {
+	go CreateServer(func(d Data) {
+		serverChan <- d
+	})
+
+	return <-serverChan
+}
+
+func requestServer() tea.Msg {
+	return <-serverChan
 }
