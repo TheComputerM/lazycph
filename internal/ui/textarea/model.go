@@ -44,7 +44,3 @@ func (m *Model) BindValue(value *string) {
 	m.value = value
 	m.SetValue(*value)
 }
-
-func Blink() tea.Msg {
-	return textarea.Blink()
-}

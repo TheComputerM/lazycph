@@ -62,10 +62,6 @@ func (m Model) Init() tea.Cmd {
 	)
 }
 
-func (m Model) selectFileCmd() tea.Msg {
-	return core.NavigateMsg{Path: filepath.Dir(m.filePath)}
-}
-
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 

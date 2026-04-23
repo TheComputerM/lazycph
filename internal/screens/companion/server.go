@@ -8,7 +8,6 @@ import (
 	"net"
 	"net/http"
 
-	tea "charm.land/bubbletea/v2"
 	"github.com/thecomputerm/lazycph/internal/core"
 )
 
@@ -76,16 +75,3 @@ func CreateServer(onData func(Data)) {
 	}
 }
 
-var serverChan = make(chan Data, 1)
-
-func StartServer() tea.Msg {
-	go CreateServer(func(d Data) {
-		serverChan <- d
-	})
-
-	return <-serverChan
-}
-
-func requestServer() tea.Msg {
-	return <-serverChan
-}

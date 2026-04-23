@@ -7,8 +7,6 @@ import (
 	"slices"
 	"strings"
 	"time"
-
-	tea "charm.land/bubbletea/v2"
 )
 
 // TestCaseStatus is the verdict of the most recent run of a TestCase.
@@ -33,22 +31,6 @@ type TestCase struct {
 
 	// Output is the actual stdout (and stderr) captured during the last run.
 	Output string `json:"output"`
-}
-
-// TestCaseExecutedMsg is dispatched when a TestCase has finished running.
-type TestCaseExecutedMsg struct {
-	TestCase *TestCase
-}
-
-// Execute runs the test case against the source file at srcPath.
-func (tc *TestCase) ExecuteCmd(srcPath string) tea.Cmd {
-	tc.Status = TestCaseStatusPending
-	tc.Details = "Running..."
-
-	return func() tea.Msg {
-		tc.Execute(srcPath)
-		return TestCaseExecutedMsg{TestCase: tc}
-	}
 }
 
 // run performs the synchronous execution and updates tc with the verdict.

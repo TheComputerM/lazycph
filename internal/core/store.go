@@ -7,8 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	tea "charm.land/bubbletea/v2"
 )
 
 // NewTestCase returns a TestCase in its initial idle state.
@@ -79,8 +77,4 @@ func (list TestCaseList) Save(sourceFile string) error {
 	return os.WriteFile(storeFile, data, 0o644)
 }
 
-func (list TestCaseList) SaveCmd(filePath string) tea.Cmd {
-	return func() tea.Msg {
-		return list.Save(filePath)
-	}
-}
+
