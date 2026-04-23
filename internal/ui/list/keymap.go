@@ -6,10 +6,11 @@ import (
 )
 
 type KeyMap struct {
-	Up     key.Binding
-	Down   key.Binding
-	Create key.Binding
-	Delete key.Binding
+	Up      key.Binding
+	Down    key.Binding
+	Create  key.Binding
+	Delete  key.Binding
+	Execute key.Binding
 }
 
 func DefaultKeyMap() KeyMap {
@@ -29,6 +30,10 @@ func DefaultKeyMap() KeyMap {
 		Delete: key.NewBinding(
 			key.WithKeys("-", "d"),
 			key.WithHelp("-/d", "delete"),
+		),
+		Execute: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "run"),
 		),
 	}
 }

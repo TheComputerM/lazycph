@@ -54,6 +54,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				m.KeyMap.Delete.SetEnabled(false)
 			}
 			return m, m.SelectTestCase(max(m.index-1, 0))
+		case key.Matches(msg, m.KeyMap.Execute):
+			return m, func() tea.Msg {
+				return TestCaseExecuteMsg{TestCase: m.Selected()}
+			}
 		}
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {
@@ -75,6 +79,10 @@ func (m *Model) Selected() *core.TestCase {
 
 type TestCaseSelectedMsg struct {
 	Index    int
+	TestCase *core.TestCase
+}
+
+type TestCaseExecuteMsg struct {
 	TestCase *core.TestCase
 }
 

@@ -89,6 +89,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Input.BindValue(&msg.TestCase.Input)
 		m.Expected.BindValue(&msg.TestCase.Expected)
 		m.Output.SetContent(msg.TestCase.Output)
+	case list.TestCaseExecuteMsg:
+		return m, msg.TestCase.ExecuteCmd(m.filePath)
 	case core.TestCaseExecutedMsg:
 		// testcase finished running; refresh output if still selected
 		if m.TestCaseList.Selected() == msg.TestCase {
