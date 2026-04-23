@@ -14,7 +14,7 @@ A terminal UI for competitive programming.
 ## Installation
 
 ```sh
-go install github.com/thecomputerm/lazycph@latest
+go install github.com/thecomputerm/lazycph@main
 ```
 
 ## Usage
