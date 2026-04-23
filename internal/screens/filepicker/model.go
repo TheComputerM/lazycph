@@ -42,10 +42,6 @@ func (m Model) Init() tea.Cmd {
 	return tea.Batch(tea.RequestWindowSize, m.Picker.Init())
 }
 
-type FileSelectedMsg struct {
-	Path string
-}
-
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -68,9 +64,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if didSelect, path := m.Picker.DidSelectFile(msg); didSelect {
 		return m, func() tea.Msg {
-			return FileSelectedMsg{Path: path}
+			return core.NavigateMsg{Path: path}
 		}
-
 	}
 
 	return m, cmd

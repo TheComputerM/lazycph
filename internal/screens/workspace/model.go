@@ -62,10 +62,8 @@ func (m Model) Init() tea.Cmd {
 	)
 }
 
-type SelectFileMsg struct{}
-
-func (m Model) SelectFileCmd() tea.Msg {
-	return SelectFileMsg{}
+func (m Model) selectFileCmd() tea.Msg {
+	return core.NavigateMsg{Path: filepath.Dir(m.filePath)}
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -118,13 +116,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, tea.Batch(cmds...)
 		case key.Matches(msg, m.keyMap.SelectFile):
-			return m, m.SelectFileCmd
+			return m, m.selectFileCmd
 		}
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {
 			if zone.Get("section-list").InBounds(msg) {
 				if zone.Get("list-title").InBounds(msg) {
-					return m, m.SelectFileCmd
+					return m, m.selectFileCmd
 				}
 				cmds = append(cmds, m.focusOn(0))
 			} else if zone.Get("section-input").InBounds(msg) {

@@ -11,7 +11,6 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/thecomputerm/lazycph/internal/core"
-	"github.com/thecomputerm/lazycph/internal/screens/filepicker"
 )
 
 type Model struct {
@@ -91,11 +90,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return err
 				}
 
-				return filepicker.FileSelectedMsg{Path: fpath}
+				return core.NavigateMsg{Path: fpath}
 			}
 		case key.Matches(msg, m.keyMap.Back):
-			// TODO: navigate back to the previous screen
-			return m, tea.Quit
+			return m, func() tea.Msg {
+				return core.NavigateMsg{}
+			}
 		case key.Matches(msg, m.keyMap.Quit):
 			return m, tea.Quit
 		}
