@@ -9,13 +9,29 @@ import (
 
 // default engines
 var Engines = map[string]Engine{
+	".c": {
+		Mode:    "compile",
+		Command: []string{"cc", "{file}", "-o", "{temp}", "-std=c17"},
+	},
 	".cpp": {
 		Mode:    "compile",
 		Command: []string{"c++", "{file}", "-o", "{temp}", "-std=c++17"},
 	},
+	".go": {
+		Mode:    "compile",
+		Command: []string{"go", "build", "-o", "{temp}", "{file}"},
+	},
 	".py": {
 		Mode:    "interpret",
 		Command: []string{"python3", "{file}"},
+	},
+	".rs": {
+		Mode:    "compile",
+		Command: []string{"rustc", "{file}", "-o", "{temp}"},
+	},
+	".zig": {
+		Mode:    "compile",
+		Command: []string{"zig", "build-exe", "{file}", "-femit-bin={temp}"},
 	},
 }
 
