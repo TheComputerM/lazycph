@@ -7,6 +7,7 @@ require (
 	charm.land/bubbletea/v2 v2.0.6
 	charm.land/lipgloss/v2 v2.0.3
 	github.com/lrstanley/bubblezone/v2 v2.0.0
+	github.com/urfave/cli/v3 v3.8.0
 )
 
 require (

@@ -1,17 +1,57 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/thecomputerm/lazycph/internal/app"
+	"github.com/urfave/cli/v3"
 )
 
+// version is set at build time via ldflags.
+var version = "dev"
+
 func main() {
-	currentDirectory, _ := os.Getwd()
-	p := tea.NewProgram(app.New(currentDirectory))
-	if _, err := p.Run(); err != nil {
-		log.Fatalf("Alas, there's been an error: %v", err)
+	cmd := &cli.Command{
+		Name:    "lazycph",
+		Usage:   "A terminal UI for competitive programming",
+		Version: version,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "companion",
+				Aliases: []string{"c"},
+				Usage:   "Enable Competitive Companion integration",
+			},
+		},
+		Arguments: []cli.Argument{
+			&cli.StringArg{
+				Name: "filepath",
+				Config: cli.StringConfig{
+					TrimSpace: true,
+				},
+			},
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			filepath := cmd.StringArg("filepath")
+			if filepath == "" {
+				var err error
+				filepath, err = os.Getwd()
+				if err != nil {
+					return err
+				}
+			}
+
+			companion := cmd.Bool("companion")
+
+			p := tea.NewProgram(app.New(filepath, companion))
+			_, err := p.Run()
+			return err
+		},
+	}
+
+	if err := cmd.Run(context.Background(), os.Args); err != nil {
+		log.Fatal(err)
 	}
 }

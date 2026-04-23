@@ -39,12 +39,11 @@ func activeModelFromState(state string) tea.Model {
 	return workspace.New(state)
 }
 
-func New(state string) Model {
+func New(state string, companionMode bool) Model {
 	return Model{
-		state:  state,
-		active: activeModelFromState(state),
-
-		companionMode: true,
+		state:         state,
+		active:        activeModelFromState(state),
+		companionMode: companionMode,
 	}
 }
 
