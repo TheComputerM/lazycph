@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	tea "charm.land/bubbletea/v2"
-	"github.com/thecomputerm/lazycph/internal/core"
 	"github.com/thecomputerm/lazycph/internal/screens/filepicker"
 	"github.com/thecomputerm/lazycph/internal/screens/workspace"
 )
@@ -34,11 +33,7 @@ func New(state string) Model {
 	} else if info.IsDir() {
 		active = filepicker.New(state)
 	} else {
-		testcases, err := core.LoadTestCaseList(state)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		active = workspace.New(filepicker.FileSelectedMsg{Path: state, TestCases: testcases})
+		active = workspace.New(state)
 	}
 
 	return Model{
@@ -57,10 +52,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	case filepicker.FileSelectedMsg:
 		m.state = msg.Path
-		m.active = workspace.New(msg)
+		m.active = workspace.New(m.state)
 		return m, m.active.Init()
 	case workspace.SelectFileMsg:
-		m.state = filepath.Dir(msg.PreviousFile)
+		m.state = filepath.Dir(m.state)
 		m.active = filepicker.New(m.state)
 		return m, m.active.Init()
 	default:

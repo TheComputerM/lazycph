@@ -43,8 +43,7 @@ func (m Model) Init() tea.Cmd {
 }
 
 type FileSelectedMsg struct {
-	Path      string
-	TestCases core.TestCaseList
+	Path string
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -68,15 +67,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.Picker, cmd = m.Picker.Update(msg)
 
 	if didSelect, path := m.Picker.DidSelectFile(msg); didSelect {
-		testCases, err := core.LoadTestCaseList(path)
-		if err != nil {
-			return m, func() tea.Msg {
-				return err
-			}
-		}
-
 		return m, func() tea.Msg {
-			return FileSelectedMsg{Path: path, TestCases: testCases}
+			return FileSelectedMsg{Path: path}
 		}
 
 	}

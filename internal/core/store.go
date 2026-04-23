@@ -11,15 +11,22 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
-func LoadTestCaseList(filePath string) (TestCaseList, error) {
-	if err := ensureTestCaseFile(filePath); err != nil {
-		return nil, err
+func LoadTestCaseList(filePath string) TestCaseList {
+	list, err := loadTestCaseList(filePath)
+
+	if err != nil {
+		// return a new test case list if error with existing one
+		return TestCaseList{newTestCase()}
 	}
 
-	lazyCphDir := filepath.Join(filepath.Dir(filePath), ".lazycph")
-	testCaseFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))+".json")
+	return list
+}
 
-	data, err := os.ReadFile(testCaseFile)
+func loadTestCaseList(filePath string) (TestCaseList, error) {
+	lazyCphDir := filepath.Join(filepath.Dir(filePath), ".lazycph")
+	storeFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))+".json")
+
+	data, err := os.ReadFile(storeFile)
 	if err != nil {
 		return nil, err
 	}
@@ -29,10 +36,14 @@ func LoadTestCaseList(filePath string) (TestCaseList, error) {
 		return nil, err
 	}
 
+	if len(list) == 0 {
+		return nil, fmt.Errorf("testcase list is empty")
+	}
+
 	return list, nil
 }
 
-func ensureTestCaseFile(filePath string) error {
+func (list TestCaseList) Save(filePath string) error {
 	lazyCphDir := filepath.Join(filepath.Dir(filePath), ".lazycph")
 	if info, err := os.Stat(lazyCphDir); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -50,32 +61,14 @@ func ensureTestCaseFile(filePath string) error {
 		return fmt.Errorf("%s is not a directory", lazyCphDir)
 	}
 
-	testCaseFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))+".json")
-	if _, err := os.Stat(testCaseFile); err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			return err
-		}
-
-		sample := TestCaseList{newTestCase()}
-		if err := sample.Save(filePath); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (list TestCaseList) Save(filePath string) error {
-	// assume lazycph dir exists
-	lazyCphDir := filepath.Join(filepath.Dir(filePath), ".lazycph")
-	testCaseFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))+".json")
-
 	data, err := json.Marshal(list)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(testCaseFile, data, 0o644)
+	storeFile := filepath.Join(lazyCphDir, strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))+".json")
+
+	return os.WriteFile(storeFile, data, 0o644)
 }
 
 func (list TestCaseList) SaveCmd(filePath string) tea.Cmd {

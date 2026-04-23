@@ -58,7 +58,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.MouseReleaseMsg:
 		if msg.Button == tea.MouseLeft {
 			for i, _ := range m.Items {
-				if zone.Get("listitem-" + strconv.Itoa(i)).InBounds(msg) {
+				if zone.Get("list-item" + strconv.Itoa(i)).InBounds(msg) {
 					return m, m.SelectTestCase(i)
 				}
 			}
@@ -122,7 +122,7 @@ func (m Model) View() string {
 			item = state.SelectedItem.Render(content)
 		}
 
-		sb.WriteString(zone.Mark("listitem-"+strconv.Itoa(i), item))
+		sb.WriteString(zone.Mark("list-item"+strconv.Itoa(i), item))
 	}
 
 	return m.styles.List.Height(m.height).Render(sb.String())

@@ -10,7 +10,6 @@ import (
 
 	zone "github.com/lrstanley/bubblezone/v2"
 	"github.com/thecomputerm/lazycph/internal/core"
-	"github.com/thecomputerm/lazycph/internal/screens/filepicker"
 	"github.com/thecomputerm/lazycph/internal/ui/list"
 	"github.com/thecomputerm/lazycph/internal/ui/output"
 	"github.com/thecomputerm/lazycph/internal/ui/textarea"
@@ -32,7 +31,7 @@ type Model struct {
 
 var _ tea.Model = (*Model)(nil)
 
-func New(msg filepicker.FileSelectedMsg) Model {
+func New(selectedFile string) Model {
 	zone.NewGlobal()
 
 	model := Model{
@@ -42,12 +41,12 @@ func New(msg filepicker.FileSelectedMsg) Model {
 		Output:       output.New(),
 		Help:         help.New(),
 
+		filePath: selectedFile,
 		keyMap:   DefaultKeyMap(),
-		filePath: msg.Path,
 	}
 
-	model.TestCaseList.Title = filepath.Base(msg.Path)
-	model.TestCaseList.Items = msg.TestCases
+	model.TestCaseList.Title = filepath.Base(selectedFile)
+	model.TestCaseList.Items = core.LoadTestCaseList(selectedFile)
 
 	model.focusOn(0)
 
@@ -63,12 +62,10 @@ func (m Model) Init() tea.Cmd {
 	)
 }
 
-type SelectFileMsg struct {
-	PreviousFile string
-}
+type SelectFileMsg struct{}
 
 func (m Model) SelectFileCmd() tea.Msg {
-	return SelectFileMsg{PreviousFile: m.filePath}
+	return SelectFileMsg{}
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
