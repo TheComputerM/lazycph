@@ -2,11 +2,13 @@
 
 A terminal UI for competitive programming.
 
+![LazyCPH Demo](./assets/lazycph.gif)
+
+---
+
 ## Features
 
 - Run test cases against source files
-- Edit input and expected output inline
-- Real-time verdicts: AC (Accepted), WA (Wrong Answer), TLE (Time Limit Exceeded), RE (Runtime Error)
 - Competitive Companion integration for automatic test case retrieval
 - Mouse support for panel selection and scrolling
 - Configurable language engines for compilation and execution
