@@ -71,10 +71,28 @@ func (tc *TestCase) Execute(srcPath string) {
 	}
 }
 
-// outputMatches reports whether actual matches expected, ignoring trailing
-// newlines on either side.
+// outputMatches reports whether actual matches expected, ignoring blank lines
+// and treating runs of whitespace as a single separator.
 func outputMatches(actual, expected string) bool {
-	return strings.TrimRight(actual, "\n") == strings.TrimRight(expected, "\n")
+	nonBlankLines := func(r rune) bool { return r == '\n' }
+
+	actualLines := strings.FieldsFunc(actual, nonBlankLines)
+	expectedLines := strings.FieldsFunc(expected, nonBlankLines)
+
+	if len(actualLines) != len(expectedLines) {
+		return false
+	}
+
+	for i := range actualLines {
+		actualTokens := strings.Fields(actualLines[i])
+		expectedTokens := strings.Fields(expectedLines[i])
+
+		if !slices.Equal(actualTokens, expectedTokens) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // TestCaseList is an ordered collection of test cases for a single source file.
